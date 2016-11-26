@@ -188,6 +188,7 @@
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="Pacman.h" />
     <ClInclude Include="PacmanDoc.h" />
+    <ClInclude Include="PacmanThread.h" />
     <ClInclude Include="PacmanView.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -197,6 +198,7 @@
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="Pacman.cpp" />
     <ClCompile Include="PacmanDoc.cpp" />
+    <ClCompile Include="PacmanThread.cpp" />
     <ClCompile Include="PacmanView.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -212,6 +214,7 @@
     <None Include="res\Pacman.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\bitmap1.bmp" />
     <Image Include="res\Pacman.ico" />
     <Image Include="res\PacmanDoc.ico" />
     <Image Include="res\Toolbar.bmp" />
@@ -219,4 +222,9 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="Pacman.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

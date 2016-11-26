@@ -5,6 +5,7 @@
 #pragma once
 #define M 19
 #define N 17
+#include "PacmanDoc.h"
 
 class CPacmanView : public CView
 {

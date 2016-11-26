@@ -11,7 +11,7 @@
 
 #include "PacmanDoc.h"
 #include "PacmanView.h"
-
+#include "PacmanThread.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -57,6 +57,7 @@ void CPacmanView::OnDraw(CDC* pDC)
 	if (!pDoc)
 		return;
 	SetMap(pDC);
+	AfxBeginThread(RUNTIME_CLASS(PacmanThread));
 	// TODO: 여기에 원시 데이터에 대한 그리기 코드를 추가합니다.
 }
 
