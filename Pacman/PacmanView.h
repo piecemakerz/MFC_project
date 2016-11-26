@@ -81,7 +81,7 @@ protected:
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
-	BOOL DrawMap(CDC* dc);
+	BOOL SetMap(CDC* dc);
 };
 
 #ifndef _DEBUG  // PacmanView.cpp의 디버그 버전
