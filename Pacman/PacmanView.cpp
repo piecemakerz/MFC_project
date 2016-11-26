@@ -102,3 +102,93 @@ CPacmanDoc* CPacmanView::GetDocument() const // 디버그되지 않은 버전은 인라인으�
 
 
 // CPacmanView 메시지 처리기
+
+
+BOOL CPacmanView::DrawMap(CDC* dc)
+{
+	CRect rect;
+	GetWindowRect(&rect);
+	ScreenToClient(rect);
+	CBrush brush(RGB(0, 0, 0));
+	dc->SelectObject(&brush);
+	dc->Rectangle(rect);
+	CPen pen(PS_SOLID, 2, RGB(0, 0, 255));
+	dc->SelectObject(&pen);
+
+	for (int i = 0; i < M; i++) {
+		for (int j = 0; j < N; j++) {
+			dc->MoveTo(j * 32 + 30, i * 32 + 30);
+			if (Map[i][j] == 0);
+			else if (Map[i][j] == 1) {
+				dc->LineTo(j * 32 + 32 + 30, i * 32 + 30);
+			}
+			else if (Map[i][j] == 2) {
+				dc->MoveTo(j * 32 + 30, i * 32 + 32 + 30);
+				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
+			}
+			else if (Map[i][j] == 3) {
+				dc->LineTo(j * 32 + 30, i * 32 + 32 + 30);
+			}
+			else if (Map[i][j] == 4) {
+				dc->MoveTo(j * 32 + 32 + 30, i * 32 + 30);
+				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
+			}
+			else if (Map[i][j] == 5) {
+				dc->MoveTo(j * 32 + 30, i * 32 + 32 + 30);
+				dc->LineTo(j * 32 + 30, i * 32 + 30);
+				dc->LineTo(j * 32 + 32 + 30, i * 32 + 30);
+			}
+			else if (Map[i][j] == 6) {
+				dc->LineTo(j * 32 + 32 + 30, i * 32 + 30);
+				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
+			}
+			else if (Map[i][j] == 7) {
+				dc->LineTo(j * 32 + 30, i * 32 + 32 + 30);
+				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
+			}
+			else if (Map[i][j] == 8) {
+				dc->MoveTo(j * 32 + 30, i * 32 + 32 + 30);
+				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
+				dc->LineTo(j * 32 + 32 + 30, i * 32 + 30);
+			}
+			else if (Map[i][j] == 9) {
+				dc->LineTo(j * 32 + 30, i * 32 + 32 + 30);
+				dc->MoveTo(j * 32 + 32 + 30, i * 32 + 30);
+				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
+			}
+			else if (Map[i][j] == 10) {
+				dc->LineTo(j * 32 + 32 + 30, i * 32 + 30);
+				dc->MoveTo(j * 32 + 30, i * 32 + 32 + 30);
+				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
+			}
+			else if (Map[i][j] == 11) {
+				dc->LineTo(j * 32 + 32 + 30, i * 32 + 30);
+				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
+				dc->LineTo(j * 32 + 30, i * 32 + 32 + 30);
+
+			}
+			else if (Map[i][j] == 12) {
+				dc->MoveTo(j * 32 + 32 + 30, i * 32 + 30);
+				dc->LineTo(j * 32 + 30, i * 32 + 30);
+				dc->LineTo(j * 32 + 30, i * 32 + 32 + 30);
+				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
+			}
+			else if (Map[i][j] == 13) {
+				dc->MoveTo(j * 32 + 30, i * 32 + 32 + 30);
+				dc->LineTo(j * 32 + 30, i * 32 + 30);
+				dc->LineTo(j * 32 + 32 + 30, i * 32 + 30);
+				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
+			}
+			else if (Map[i][j] == 14) {
+				dc->LineTo(j * 32 + 30, i * 32 + 32 + 30);
+				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
+				dc->LineTo(j * 32 + 32 + 30, i * 32 + 30);
+			}
+			else if (Map[i][j] == 15) {
+				dc->Rectangle(j * 32 + 30, i * 32 + 30, j * 32 + 32 + 30, i * 32 + 32 + 30);
+			}
+			else;
+		}
+	}
+	return 0;
+}
