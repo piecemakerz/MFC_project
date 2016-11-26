@@ -81,7 +81,21 @@ IDR_PacmanTYPE          ICON                    "res\\PacmanDoc.ico"
 
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
 
+IDB_PACMANDOWN1         BITMAP                  "res\\bitmap4.bmp"
+
+IDB_PACMANRIGHT1        BITMAP                  "res\\bitmap6.bmp"
+
+IDB_PACMANLEFT1         BITMAP                  "res\\bitmap8.bmp"
+
 IDB_PACMANUP1           BITMAP                  "res\\bitmap1.bmp"
+
+IDB_PACMANUP2           BITMAP                  "res\\bitmap2.bmp"
+
+IDB_PACMANDOWN2         BITMAP                  "res\\bitmap5.bmp"
+
+IDB_PACMANRIGHT2        BITMAP                  "res\\bitmap7.bmp"
+
+IDB_PACMANLEFT2         BITMAP                  "res\\bitmap9.bmp"
 
 
 /////////////////////////////////////////////////////////////////////////////

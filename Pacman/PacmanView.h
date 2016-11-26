@@ -6,7 +6,9 @@
 #define M 19
 #define N 17
 #include "PacmanDoc.h"
+#include "PacmanThread.h"
 
+class PacmanThread;
 class CPacmanView : public CView
 {
 protected: // serialization에서만 만들어집니다.
@@ -56,6 +58,7 @@ public:
 		{ 7, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 8 }
 
 	};//[8][9]값은 입구 일단 0으로 처리
+	PacmanThread* pacThread;
 // 작업입니다.
 public:
 
@@ -83,6 +86,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	BOOL SetMap(CDC* dc);
+//	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 };
 
 #ifndef _DEBUG  // PacmanView.cpp의 디버그 버전

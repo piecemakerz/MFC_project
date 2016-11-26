@@ -26,6 +26,8 @@ BEGIN_MESSAGE_MAP(CPacmanView, CView)
 	ON_COMMAND(ID_FILE_PRINT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CView::OnFilePrintPreview)
+//	ON_WM_CHAR()
+ON_WM_KEYDOWN()
 END_MESSAGE_MAP()
 
 // CPacmanView 생성/소멸
@@ -57,7 +59,8 @@ void CPacmanView::OnDraw(CDC* pDC)
 	if (!pDoc)
 		return;
 	SetMap(pDC);
-	AfxBeginThread(RUNTIME_CLASS(PacmanThread));
+	pacThread = (PacmanThread*)(AfxBeginThread(RUNTIME_CLASS(PacmanThread)));
+
 	// TODO: 여기에 원시 데이터에 대한 그리기 코드를 추가합니다.
 }
 
@@ -118,78 +121,98 @@ BOOL CPacmanView::SetMap(CDC* dc)
 
 	for (int i = 0; i < M; i++) {
 		for (int j = 0; j < N; j++) {
-			dc->MoveTo(j * 32 + 30, i * 32 + 30);
+			dc->MoveTo(j * 36 + 30, i * 36 + 30);
 			if (Map[i][j] == 0);
 			else if (Map[i][j] == 1) {
-				dc->LineTo(j * 32 + 32 + 30, i * 32 + 30);
+				dc->LineTo(j * 36 + 36 + 30, i * 36 + 30);
 			}
 			else if (Map[i][j] == 2) {
-				dc->MoveTo(j * 32 + 30, i * 32 + 32 + 30);
-				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
+				dc->MoveTo(j * 36 + 30, i * 36 + 36 + 30);
+				dc->LineTo(j * 36 + 36 + 30, i * 36 + 36 + 30);
 			}
 			else if (Map[i][j] == 3) {
-				dc->LineTo(j * 32 + 30, i * 32 + 32 + 30);
+				dc->LineTo(j * 36 + 30, i * 36 + 36 + 30);
 			}
 			else if (Map[i][j] == 4) {
-				dc->MoveTo(j * 32 + 32 + 30, i * 32 + 30);
-				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
+				dc->MoveTo(j * 36 + 36 + 30, i * 36 + 30);
+				dc->LineTo(j * 36 + 36 + 30, i * 36 + 36 + 30);
 			}
 			else if (Map[i][j] == 5) {
-				dc->MoveTo(j * 32 + 30, i * 32 + 32 + 30);
-				dc->LineTo(j * 32 + 30, i * 32 + 30);
-				dc->LineTo(j * 32 + 32 + 30, i * 32 + 30);
+				dc->MoveTo(j * 36 + 30, i * 36 + 36 + 30);
+				dc->LineTo(j * 36 + 30, i * 36 + 30);
+				dc->LineTo(j * 36 + 36 + 30, i * 36 + 30);
 			}
 			else if (Map[i][j] == 6) {
-				dc->LineTo(j * 32 + 32 + 30, i * 32 + 30);
-				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
+				dc->LineTo(j * 36 + 36 + 30, i * 36 + 30);
+				dc->LineTo(j * 36 + 36 + 30, i * 36 + 36 + 30);
 			}
 			else if (Map[i][j] == 7) {
-				dc->LineTo(j * 32 + 30, i * 32 + 32 + 30);
-				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
+				dc->LineTo(j * 36 + 30, i * 36 + 36 + 30);
+				dc->LineTo(j * 36 + 36 + 30, i * 36 + 36 + 30);
 			}
 			else if (Map[i][j] == 8) {
-				dc->MoveTo(j * 32 + 30, i * 32 + 32 + 30);
-				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
-				dc->LineTo(j * 32 + 32 + 30, i * 32 + 30);
+				dc->MoveTo(j * 36 + 30, i * 36 + 36 + 30);
+				dc->LineTo(j * 36 + 36 + 30, i * 36 + 36 + 30);
+				dc->LineTo(j * 36 + 36 + 30, i * 36 + 30);
 			}
 			else if (Map[i][j] == 9) {
-				dc->LineTo(j * 32 + 30, i * 32 + 32 + 30);
-				dc->MoveTo(j * 32 + 32 + 30, i * 32 + 30);
-				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
+				dc->LineTo(j * 36 + 30, i * 36 + 36 + 30);
+				dc->MoveTo(j * 36 + 36 + 30, i * 36 + 30);
+				dc->LineTo(j * 36 + 36 + 30, i * 36 + 36 + 30);
 			}
 			else if (Map[i][j] == 10) {
-				dc->LineTo(j * 32 + 32 + 30, i * 32 + 30);
-				dc->MoveTo(j * 32 + 30, i * 32 + 32 + 30);
-				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
+				dc->LineTo(j * 36 + 36 + 30, i * 36 + 30);
+				dc->MoveTo(j * 36 + 30, i * 36 + 36 + 30);
+				dc->LineTo(j * 36 + 36 + 30, i * 36 + 36 + 30);
 			}
 			else if (Map[i][j] == 11) {
-				dc->LineTo(j * 32 + 32 + 30, i * 32 + 30);
-				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
-				dc->LineTo(j * 32 + 30, i * 32 + 32 + 30);
+				dc->LineTo(j * 36 + 36 + 30, i * 36 + 30);
+				dc->LineTo(j * 36 + 36 + 30, i * 36 + 36 + 30);
+				dc->LineTo(j * 36 + 30, i * 36 + 36 + 30);
 
 			}
 			else if (Map[i][j] == 12) {
-				dc->MoveTo(j * 32 + 32 + 30, i * 32 + 30);
-				dc->LineTo(j * 32 + 30, i * 32 + 30);
-				dc->LineTo(j * 32 + 30, i * 32 + 32 + 30);
-				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
+				dc->MoveTo(j * 36 + 36 + 30, i * 36 + 30);
+				dc->LineTo(j * 36 + 30, i * 36 + 30);
+				dc->LineTo(j * 36 + 30, i * 36 + 36 + 30);
+				dc->LineTo(j * 36 + 36 + 30, i * 36 + 36 + 30);
 			}
 			else if (Map[i][j] == 13) {
-				dc->MoveTo(j * 32 + 30, i * 32 + 32 + 30);
-				dc->LineTo(j * 32 + 30, i * 32 + 30);
-				dc->LineTo(j * 32 + 32 + 30, i * 32 + 30);
-				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
+				dc->MoveTo(j * 36 + 30, i * 36 + 36 + 30);
+				dc->LineTo(j * 36 + 30, i * 36 + 30);
+				dc->LineTo(j * 36 + 36 + 30, i * 36 + 30);
+				dc->LineTo(j * 36 + 36 + 30, i * 36 + 36 + 30);
 			}
 			else if (Map[i][j] == 14) {
-				dc->LineTo(j * 32 + 30, i * 32 + 32 + 30);
-				dc->LineTo(j * 32 + 32 + 30, i * 32 + 32 + 30);
-				dc->LineTo(j * 32 + 32 + 30, i * 32 + 30);
+				dc->LineTo(j * 36 + 30, i * 36 + 36 + 30);
+				dc->LineTo(j * 36 + 36 + 30, i * 36 + 36 + 30);
+				dc->LineTo(j * 36 + 36 + 30, i * 36 + 30);
 			}
 			else if (Map[i][j] == 15) {
-				dc->Rectangle(j * 32 + 30, i * 32 + 30, j * 32 + 32 + 30, i * 32 + 32 + 30);
+				dc->Rectangle(j * 36 + 30, i * 36 + 30, j * 36 + 36 + 30, i * 36 + 36 + 30);
 			}
 			else;
 		}
 	}
 	return 0;
+}
+
+
+//void CPacmanView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
+//{
+//	pacThread->direction = nChar;
+//}
+
+
+
+
+void CPacmanView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	if (nChar == VK_RIGHT || nChar == VK_LEFT || nChar == VK_UP || nChar == VK_DOWN) {
+		pacThread->SuspendThread();
+		pacThread->direction = nChar;
+		pacThread->ResumeThread();
+	}
+	else
+		CView::OnKeyDown(nChar, nRepCnt, nFlags);
 }
