@@ -11,8 +11,7 @@
 #define new DEBUG_NEW
 #endif
 
-// CMainFrame
-
+// CMainFrame	
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWnd)
 
 const int  iMaxUserToolbars = 10;
