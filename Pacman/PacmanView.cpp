@@ -50,13 +50,13 @@ BOOL CPacmanView::PreCreateWindow(CREATESTRUCT& cs)
 
 // CPacmanView 그리기
 
-void CPacmanView::OnDraw(CDC* /*pDC*/)
+void CPacmanView::OnDraw(CDC* pDC)
 {
 	CPacmanDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
-
+	SetMap(pDC);
 	// TODO: 여기에 원시 데이터에 대한 그리기 코드를 추가합니다.
 }
 
@@ -104,7 +104,7 @@ CPacmanDoc* CPacmanView::GetDocument() const // 디버그되지 않은 버전은 인라인으�
 // CPacmanView 메시지 처리기
 
 
-BOOL CPacmanView::DrawMap(CDC* dc)
+BOOL CPacmanView::SetMap(CDC* dc)
 {
 	CRect rect;
 	GetWindowRect(&rect);
