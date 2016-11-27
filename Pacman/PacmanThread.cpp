@@ -69,7 +69,7 @@ BOOL PacmanThread::InitInstance()
 	dcmem_right1.SelectObject(&pacman_bitmap_right1);
 	dcmem_right2.SelectObject(&pacman_bitmap_right2);
 
-	::TransparentBlt(*dc, 30 + 38 * 3 + 3, 30 + 38 * 3 + 3, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, RGB(0,0,0));
+	::TransparentBlt(*dc, 30 + 38 * 3 + 4, 30 + 38 * 3 + 3, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, RGB(0,0,0));
 	return TRUE;
 }
 
@@ -100,7 +100,7 @@ int PacmanThread::MovePacman(CDC* dc)
 	dc->SelectObject(brush);
 	int i = 1;
 	int pos_x, pos_y, prev_x, prev_y;
-	pos_x = 30 + 38 * 3 + 3;
+	pos_x = 30 + 38 * 3 + 4;
 	pos_y = 30 + 38 * 3 + 3;
 	prev_x = pos_x; prev_y = pos_y;
 	while (true) {

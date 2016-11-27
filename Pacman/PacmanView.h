@@ -58,6 +58,7 @@ public:
 		{ 7, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 8 }
 
 	};//[8][9]값은 입구 일단 0으로 처리
+	int MapPoint[19][17] = { 0 };
 	PacmanThread* pacThread;
 	CRect rect;
 // 작업입니다.

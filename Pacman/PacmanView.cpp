@@ -34,7 +34,33 @@ END_MESSAGE_MAP()
 
 CPacmanView::CPacmanView()
 {
-
+	for (int i = 0; i < M; i++)
+		for (int j = 0; j < N; j++) {
+			if (Map[i][j] <= 8)
+				MapPoint[i][j] = 1;
+		}
+	MapPoint[3][8] = 0;
+	MapPoint[5][4] = 0;
+	MapPoint[5][12] = 0;
+	MapPoint[11][8] = 0;
+	MapPoint[13][2] = 0;
+	MapPoint[13][14] = 0;
+	MapPoint[15][8] = 0;
+	MapPoint[17][4] = 0;
+	MapPoint[17][12] = 0;
+	
+	for (int i = 5; i <= 7; i++) {
+		for (int j = 0; j <= 2; j++)
+			MapPoint[i][j] = 0;
+		for (int j = 14; j <= 16; j++)
+			MapPoint[i][j] = 0;
+	}
+	for (int i = 9; i <= 11; i++) {
+		for (int j = 0; j <= 2; j++)
+			MapPoint[i][j] = 0;
+		for (int j = 14; j <= 16; j++)
+			MapPoint[i][j] = 0;
+	}
 }
 
 CPacmanView::~CPacmanView()
@@ -113,6 +139,7 @@ CPacmanDoc* CPacmanView::GetDocument() const // 디버그되지 않은 버전은 인라인으�
 BOOL CPacmanView::SetMap(CDC* dc)
 {
 	CBrush brush(RGB(0, 0, 0));
+	CBrush pointbrush(RGB(255, 144, 0));
 	dc->SelectObject(&brush);
 	dc->Rectangle(rect);
 	CPen pen(PS_SOLID, 2, RGB(0, 0, 255));
@@ -190,7 +217,13 @@ BOOL CPacmanView::SetMap(CDC* dc)
 			else if (Map[i][j] == 15) {
 				dc->Rectangle(j * 38 + 30, i * 38 + 30, j * 38 + 38 + 30, i * 38 + 38 + 30);
 			}
-			else;
+			if (MapPoint[i][j] == 1) {
+				dc->SelectObject(pointbrush);
+				dc->SelectStockObject(NULL_PEN);
+				dc->Ellipse(j * 38 + 30 + 16, i * 38 + 30 + 16, j * 38 + 30 + 22, i * 38 + 30 + 22);
+				dc->SelectObject(brush);
+				dc->SelectObject(pen);
+			}
 		}
 	}
 	return 0;
