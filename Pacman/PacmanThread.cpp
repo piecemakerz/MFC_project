@@ -121,8 +121,7 @@ int PacmanThread::MovePacman(CDC* dc)
 	dc->SetBkColor(RGB(0, 0, 0));
 
 	while (true) {
-		dc->Rectangle(800, 130, 1000, 200);
-		strpoint.Format(_T("point : %d, %d, %d"), point, prev_x, prev_y);
+		strpoint.Format(_T("point : %d"), point);
 		dc->TextOut(800, 130, strpoint);
 
 		if (((prev_x >= 28 && prev_x <= 40) && (prev_y >= 30 + SIZE * 9 - 20 && prev_y <= 30+ SIZE * 9 + 20)) && direction == VK_LEFT)
@@ -141,7 +140,7 @@ int PacmanThread::MovePacman(CDC* dc)
 
 			// dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
 
-			if (GetPixel(*dc, pos_x - 1, pos_y + 16) == RGB(255, 144, 0)) {
+			if (GetPixel(*dc, pos_x - 1, pos_y + 15) == RGB(255, 144, 0) || GetPixel(*dc, pos_x - 1, pos_y + 17) == RGB(255, 144, 0)) {
 				point++;
 				// dc->Rectangle(pos_x - 1 - 6, pos_y + 13, pos_x - 1, pos_y + 19);
 				dc->BitBlt(pos_x - 1 - 6, pos_y + 13, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
@@ -170,7 +169,7 @@ int PacmanThread::MovePacman(CDC* dc)
 
 			// dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
 
-			if (GetPixel(*dc, pos_x + 32 + 1, pos_y + 16) == RGB(255, 144, 0)) {
+			if (GetPixel(*dc, pos_x + 32 + 1, pos_y + 15) == RGB(255, 144, 0) || GetPixel(*dc, pos_x + 32 + 1, pos_y + 17) == RGB(255, 144, 0)) {
 				point++;
 				// dc->Rectangle(pos_x + 32 + 1 + 6, pos_y + 13, pos_x + 32 + 1, pos_y + 19);
 				dc->BitBlt(pos_x +32 + 1, pos_y + 13, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
@@ -199,7 +198,7 @@ int PacmanThread::MovePacman(CDC* dc)
 
 			// dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
 
-			if (GetPixel(*dc, pos_x + 16, pos_y - 1) == RGB(255, 144, 0)) {
+			if (GetPixel(*dc, pos_x + 15, pos_y - 1) == RGB(255, 144, 0) || GetPixel(*dc, pos_x + 17, pos_y - 1) == RGB(255, 144, 0)) {
 				point++;
 				// dc->Rectangle(pos_x + 13, pos_y - 1 - 6, pos_x + 13 + 6, pos_y -1);
 				dc->BitBlt(pos_x + 13, pos_y - 1 - 6, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
@@ -228,7 +227,7 @@ int PacmanThread::MovePacman(CDC* dc)
 
 			// dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
 
-			if (GetPixel(*dc, pos_x + 16, pos_y + 32 + 1) == RGB(255, 144, 0)) {
+			if (GetPixel(*dc, pos_x + 15, pos_y + 32 + 1) == RGB(255, 144, 0) || GetPixel(*dc, pos_x + 17, pos_y + 32 + 1) == RGB(255, 144, 0)) {
 				point++;
 				// dc->Rectangle(pos_x + 13, pos_y + 32 + 1 + 6, pos_x + 13 + 6, pos_y + 32 + 1);
 				dc->BitBlt(pos_x + 13, pos_y + 32 + 1, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);

@@ -223,7 +223,7 @@ BOOL CPacmanView::SetMap(CDC* dc)
 			if (MapPoint[i][j] == 1) {
 				dc->SelectObject(pointbrush);
 				dc->SelectStockObject(NULL_PEN);
-				dc->Ellipse(j * SIZE + 30 + 16, i * SIZE + 30 + 16, j * SIZE + 30 + 22, i * SIZE + 30 + 22);
+				dc->Ellipse(j * SIZE + 30 + (SIZE/2 - 4), i * SIZE + 30 + (SIZE/2 - 4), j * SIZE + 30 + (SIZE/2 + 4), i * SIZE + 30 + (SIZE/2 + 4));
 				dc->SelectObject(brush);
 				dc->SelectObject(pen);
 			}
