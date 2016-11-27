@@ -28,6 +28,7 @@ BEGIN_MESSAGE_MAP(CPacmanView, CView)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CView::OnFilePrintPreview)
 //	ON_WM_CHAR()
 ON_WM_KEYDOWN()
+ON_WM_ERASEBKGND()
 END_MESSAGE_MAP()
 
 // CPacmanView »ý¼º/¼Ò¸ê
@@ -61,6 +62,8 @@ CPacmanView::CPacmanView()
 		for (int j = 14; j <= 16; j++)
 			MapPoint[i][j] = 0;
 	}
+
+	pacThread_Suspended = false;
 }
 
 CPacmanView::~CPacmanView()
@@ -245,6 +248,23 @@ void CPacmanView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		pacThread->direction = nChar;
 		pacThread->ResumeThread();
 	}
+	if (nChar == VK_SPACE) {
+		if (pacThread_Suspended == true) {
+			pacThread->ResumeThread();
+			pacThread_Suspended = false;
+		}
+		else {
+			pacThread->SuspendThread();
+			pacThread_Suspended = true;
+		}
+	}
 	else
 		CView::OnKeyDown(nChar, nRepCnt, nFlags);
+}
+
+
+BOOL CPacmanView::OnEraseBkgnd(CDC* pDC)
+{
+	return TRUE;
+	// return CView::OnEraseBkgnd(pDC);
 }

@@ -97,6 +97,10 @@ IDB_PACMANRIGHT2        BITMAP                  "res\\bitmap7.bmp"
 
 IDB_PACMANLEFT2         BITMAP                  "res\\bitmap9.bmp"
 
+IDB_BLACKRECT           BITMAP                  "res\\bmp00001.bmp"
+
+IDB_SMALL_BLACKRECT     BITMAP                  "res\\bmp00002.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

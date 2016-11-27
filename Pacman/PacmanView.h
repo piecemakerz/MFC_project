@@ -61,6 +61,7 @@ public:
 	int MapPoint[19][17] = { 0 };
 	PacmanThread* pacThread;
 	CRect rect;
+	BOOL pacThread_Suspended;
 // 작업입니다.
 public:
 
@@ -90,6 +91,7 @@ public:
 	BOOL SetMap(CDC* dc);
 //	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 };
 
 #ifndef _DEBUG  // PacmanView.cpp의 디버그 버전

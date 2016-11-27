@@ -50,6 +50,12 @@ BOOL PacmanThread::InitInstance()
 	pacman_bitmap_right2.LoadBitmap(IDB_PACMANRIGHT2);
 	pacman_bitmap_right2.GetBitmap(&pacman_bmpinfo_right2);
 
+	black_rect.LoadBitmap(IDB_BLACKRECT);
+	black_rect.GetBitmap(&black_rect_bminfo);
+
+	small_black_rect.LoadBitmap(IDB_SMALL_BLACKRECT);
+	small_black_rect.GetBitmap(&small_black_rect_bminfo);
+
 	up = 0; down = 0; left = 0; right = 0;
 	dcmem_up1.CreateCompatibleDC(dc);
 	dcmem_up2.CreateCompatibleDC(dc);
@@ -59,6 +65,8 @@ BOOL PacmanThread::InitInstance()
 	dcmem_left2.CreateCompatibleDC(dc);
 	dcmem_right1.CreateCompatibleDC(dc);
 	dcmem_right2.CreateCompatibleDC(dc);
+	dcmem_rect.CreateCompatibleDC(dc);
+	dcmem_smallrect.CreateCompatibleDC(dc);
 
 	dcmem_up1.SelectObject(&pacman_bitmap_up1);
 	dcmem_up2.SelectObject(&pacman_bitmap_up2);
@@ -68,8 +76,11 @@ BOOL PacmanThread::InitInstance()
 	dcmem_left2.SelectObject(&pacman_bitmap_left2);
 	dcmem_right1.SelectObject(&pacman_bitmap_right1);
 	dcmem_right2.SelectObject(&pacman_bitmap_right2);
+	dcmem_rect.SelectObject(&black_rect);
+	dcmem_smallrect.SelectObject(&small_black_rect);
 
-	::TransparentBlt(*dc, 30 + 38 * 3 + 4, 30 + 38 * 3 + 3, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, RGB(0,0,0));
+	StretchBlt(*dc, 30 + 38 * 3 + 4, 30 + 38 * 3 + 3, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, SRCCOPY);
+	point = 1;
 	return TRUE;
 }
 
@@ -98,25 +109,40 @@ int PacmanThread::MovePacman(CDC* dc)
 {
 	CBrush brush(RGB(0, 0, 0));
 	dc->SelectObject(brush);
+	CString strpoint;
+
 	int i = 1;
 	int pos_x, pos_y, prev_x, prev_y;
 	pos_x = 30 + 38 * 3 + 4;
 	pos_y = 30 + 38 * 3 + 3;
 	prev_x = pos_x; prev_y = pos_y;
-	while (true) {
-		switch (direction) {
 
+	dc->SetTextColor(RGB(255, 255, 255));
+	dc->SetBkColor(RGB(0, 0, 0));
+
+	while (true) {
+		strpoint.Format(_T("point : %d"), point);
+		dc->TextOut(800, 130, strpoint);
+		switch (direction) {
+			
 		case VK_LEFT:
 			pos_x -= i;
 			if (CrashCheck(pos_x, pos_y))
 				pos_x += i;
 
-			dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
-			prev_x = pos_x; prev_y = pos_y;
+
+			// dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
+
+			if (GetPixel(*dc, pos_x - 1, pos_y + 16) == RGB(255, 144, 0)) {
+				point++;
+				// dc->Rectangle(pos_x - 1 - 6, pos_y + 13, pos_x - 1, pos_y + 19);
+				dc->BitBlt(pos_x - 1 - 6, pos_y + 13, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
+			}
 
 			if (left<=15) {
 				left += 1;
-				::TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_left1.bmWidth, pacman_bmpinfo_left1.bmHeight, dcmem_left1, 0, 0, pacman_bmpinfo_left1.bmWidth, pacman_bmpinfo_left1.bmHeight, RGB(0, 0, 0));
+				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
+				StretchBlt(*dc, pos_x, pos_y, pacman_bmpinfo_left1.bmWidth, pacman_bmpinfo_left1.bmHeight, dcmem_left1, 0, 0, pacman_bmpinfo_left1.bmWidth, pacman_bmpinfo_left1.bmHeight, SRCCOPY);
 			}
 
 			else {
@@ -124,8 +150,8 @@ int PacmanThread::MovePacman(CDC* dc)
 					left += 1;
 				if (left >= 30)
 					left = 0;
-
-				::TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_left2.bmWidth, pacman_bmpinfo_left2.bmHeight, dcmem_left2, 0, 0, pacman_bmpinfo_left2.bmWidth, pacman_bmpinfo_left2.bmHeight, RGB(0, 0, 0));
+				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
+				StretchBlt(*dc, pos_x, pos_y, pacman_bmpinfo_left2.bmWidth, pacman_bmpinfo_left2.bmHeight, dcmem_left2, 0, 0, pacman_bmpinfo_left2.bmWidth, pacman_bmpinfo_left2.bmHeight, SRCCOPY);
 			}
 			break;
 
@@ -134,12 +160,18 @@ int PacmanThread::MovePacman(CDC* dc)
 			if (CrashCheck(pos_x, pos_y))
 				pos_x -= i;
 
-			dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
-			prev_x = pos_x; prev_y = pos_y;
+			// dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
+
+			if (GetPixel(*dc, pos_x + 32 + 1, pos_y + 16) == RGB(255, 144, 0)) {
+				point++;
+				// dc->Rectangle(pos_x + 32 + 1 + 6, pos_y + 13, pos_x + 32 + 1, pos_y + 19);
+				dc->BitBlt(pos_x +32 + 1, pos_y + 13, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
+			}
 
 			if (right <= 15) {
 				right += 1;
-				::TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_right1.bmWidth, pacman_bmpinfo_right1.bmHeight, dcmem_right1, 0, 0, pacman_bmpinfo_right1.bmWidth, pacman_bmpinfo_right1.bmHeight, RGB(0, 0, 0));
+				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
+				StretchBlt(*dc, pos_x, pos_y, pacman_bmpinfo_right1.bmWidth, pacman_bmpinfo_right1.bmHeight, dcmem_right1, 0, 0, pacman_bmpinfo_right1.bmWidth, pacman_bmpinfo_right1.bmHeight, SRCCOPY);
 			}
 
 			else {
@@ -147,8 +179,8 @@ int PacmanThread::MovePacman(CDC* dc)
 					right += 1;
 				if (right >= 30)
 					right = 0;
-
-				::TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_right2.bmWidth, pacman_bmpinfo_right2.bmHeight, dcmem_right2, 0, 0, pacman_bmpinfo_right2.bmWidth, pacman_bmpinfo_right2.bmHeight, RGB(0, 0, 0));
+				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
+				StretchBlt(*dc, pos_x, pos_y, pacman_bmpinfo_right2.bmWidth, pacman_bmpinfo_right2.bmHeight, dcmem_right2, 0, 0, pacman_bmpinfo_right2.bmWidth, pacman_bmpinfo_right2.bmHeight, SRCCOPY);
 			}
 			break;
 
@@ -157,12 +189,18 @@ int PacmanThread::MovePacman(CDC* dc)
 			if (CrashCheck(pos_x, pos_y))
 				pos_y += i;
 
-			dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
-			prev_x = pos_x; prev_y = pos_y;
+			// dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
+
+			if (GetPixel(*dc, pos_x + 16, pos_y - 1) == RGB(255, 144, 0)) {
+				point++;
+				// dc->Rectangle(pos_x + 13, pos_y - 1 - 6, pos_x + 13 + 6, pos_y -1);
+				dc->BitBlt(pos_x + 13, pos_y - 1 - 6, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
+			}
 
 			if (up <= 15) {
 				up += 1;
-				::TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, RGB(0, 0, 0));
+				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
+				StretchBlt(*dc, pos_x, pos_y, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, SRCCOPY);
 			}
 
 			else {
@@ -170,7 +208,8 @@ int PacmanThread::MovePacman(CDC* dc)
 					up += 1;
 				if (up >= 30)
 					up = 0;
-				::TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_up2.bmWidth, pacman_bmpinfo_up2.bmHeight, dcmem_up2, 0, 0, pacman_bmpinfo_up2.bmWidth, pacman_bmpinfo_up2.bmHeight, RGB(0, 0, 0));
+				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
+				StretchBlt(*dc, pos_x, pos_y, pacman_bmpinfo_up2.bmWidth, pacman_bmpinfo_up2.bmHeight, dcmem_up2, 0, 0, pacman_bmpinfo_up2.bmWidth, pacman_bmpinfo_up2.bmHeight, SRCCOPY);
 			}
 			break;
 
@@ -179,12 +218,18 @@ int PacmanThread::MovePacman(CDC* dc)
 			if (CrashCheck(pos_x, pos_y))
 				pos_y -= i;
 
-			dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
-			prev_x = pos_x; prev_y = pos_y;
+			// dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
+
+			if (GetPixel(*dc, pos_x + 16, pos_y + 32 + 1) == RGB(255, 144, 0)) {
+				point++;
+				// dc->Rectangle(pos_x + 13, pos_y + 32 + 1 + 6, pos_x + 13 + 6, pos_y + 32 + 1);
+				dc->BitBlt(pos_x + 13, pos_y + 32 + 1, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
+			}
 
 			if (down < 15) {
 				down += 1;
-				::TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_down1.bmWidth, pacman_bmpinfo_down1.bmHeight, dcmem_down1, 0, 0, pacman_bmpinfo_down1.bmWidth, pacman_bmpinfo_down1.bmHeight, RGB(0, 0, 0));
+				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
+				StretchBlt(*dc, pos_x, pos_y, pacman_bmpinfo_down1.bmWidth, pacman_bmpinfo_down1.bmHeight, dcmem_down1, 0, 0, pacman_bmpinfo_down1.bmWidth, pacman_bmpinfo_down1.bmHeight, SRCCOPY);
 
 			}
 			else {
@@ -192,11 +237,13 @@ int PacmanThread::MovePacman(CDC* dc)
 					down += 1;
 				if(down >= 30)
 					down = 0;
-				::TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_down2.bmWidth, pacman_bmpinfo_down2.bmHeight, dcmem_down2, 0, 0, pacman_bmpinfo_down2.bmWidth, pacman_bmpinfo_down2.bmHeight, RGB(0, 0, 0));
+				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
+				StretchBlt(*dc, pos_x, pos_y, pacman_bmpinfo_down2.bmWidth, pacman_bmpinfo_down2.bmHeight, dcmem_down2, 0, 0, pacman_bmpinfo_down2.bmWidth, pacman_bmpinfo_down2.bmHeight,SRCCOPY);
 	
 			}
 			break;
 		}
+		prev_x = pos_x; prev_y = pos_y;
 		Sleep(15);
 	}
 	return 0;

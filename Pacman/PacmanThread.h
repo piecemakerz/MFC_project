@@ -31,7 +31,11 @@ public:
 	BITMAP pacman_bmpinfo_right1;
 	CBitmap pacman_bitmap_right2;
 	BITMAP pacman_bmpinfo_right2;
-	
+	CBitmap black_rect;
+	BITMAP black_rect_bminfo;
+	CBitmap small_black_rect;
+	BITMAP small_black_rect_bminfo;
+
 	CDC dcmem_up1;
 	CDC dcmem_up2;
 	CDC dcmem_down1;
@@ -40,10 +44,15 @@ public:
 	CDC dcmem_left2;
 	CDC dcmem_right1;
 	CDC dcmem_right2;
+	CDC dcmem_rect;
+	CDC dcmem_smallrect;
+
 	int up;
 	int down;
 	int left;
 	int right;
+
+	int point;
 
 	CDC* dc;
 	UINT direction;
