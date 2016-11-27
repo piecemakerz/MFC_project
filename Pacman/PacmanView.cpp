@@ -34,7 +34,6 @@ END_MESSAGE_MAP()
 
 CPacmanView::CPacmanView()
 {
-	// TODO: 여기에 생성 코드를 추가합니다.
 
 }
 
@@ -46,7 +45,6 @@ BOOL CPacmanView::PreCreateWindow(CREATESTRUCT& cs)
 {
 	// TODO: CREATESTRUCT cs를 수정하여 여기에서
 	//  Window 클래스 또는 스타일을 수정합니다.
-
 	return CView::PreCreateWindow(cs);
 }
 
@@ -58,7 +56,11 @@ void CPacmanView::OnDraw(CDC* pDC)
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
+
+	GetWindowRect(&rect);
+	ScreenToClient(rect);
 	SetMap(pDC);
+
 	pacThread = (PacmanThread*)(AfxBeginThread(RUNTIME_CLASS(PacmanThread)));
 
 	// TODO: 여기에 원시 데이터에 대한 그리기 코드를 추가합니다.
@@ -110,9 +112,6 @@ CPacmanDoc* CPacmanView::GetDocument() const // 디버그되지 않은 버전은 인라인으�
 
 BOOL CPacmanView::SetMap(CDC* dc)
 {
-	CRect rect;
-	GetWindowRect(&rect);
-	ScreenToClient(rect);
 	CBrush brush(RGB(0, 0, 0));
 	dc->SelectObject(&brush);
 	dc->Rectangle(rect);

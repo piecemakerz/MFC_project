@@ -59,6 +59,7 @@ public:
 
 	};//[8][9]값은 입구 일단 0으로 처리
 	PacmanThread* pacThread;
+	CRect rect;
 // 작업입니다.
 public:
 
