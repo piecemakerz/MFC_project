@@ -5,6 +5,7 @@
 #pragma once
 #define M 19
 #define N 17
+#define SIZE 42
 #include "PacmanDoc.h"
 #include "PacmanThread.h"
 

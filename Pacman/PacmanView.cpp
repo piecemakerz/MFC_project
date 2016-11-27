@@ -150,80 +150,80 @@ BOOL CPacmanView::SetMap(CDC* dc)
 
 	for (int i = 0; i < M; i++) {
 		for (int j = 0; j < N; j++) {
-			dc->MoveTo(j * 38 + 30, i * 38 + 30);
+			dc->MoveTo(j * SIZE + 30, i * SIZE + 30);
 			if (Map[i][j] == 0);
 			else if (Map[i][j] == 1) {
-				dc->LineTo(j * 38 + 38 + 30, i * 38 + 30);
+				dc->LineTo(j * SIZE + SIZE + 30, i * SIZE + 30);
 			}
 			else if (Map[i][j] == 2) {
-				dc->MoveTo(j * 38 + 30, i * 38 + 38 + 30);
-				dc->LineTo(j * 38 + 38 + 30, i * 38 + 38 + 30);
+				dc->MoveTo(j * SIZE + 30, i * SIZE + SIZE + 30);
+				dc->LineTo(j * SIZE + SIZE + 30, i * SIZE + SIZE + 30);
 			}
 			else if (Map[i][j] == 3) {
-				dc->LineTo(j * 38 + 30, i * 38 + 38 + 30);
+				dc->LineTo(j * SIZE + 30, i * SIZE + SIZE + 30);
 			}
 			else if (Map[i][j] == 4) {
-				dc->MoveTo(j * 38 + 38 + 30, i * 38 + 30);
-				dc->LineTo(j * 38 + 38 + 30, i * 38 + 38 + 30);
+				dc->MoveTo(j * SIZE + SIZE + 30, i * SIZE + 30);
+				dc->LineTo(j * SIZE + SIZE + 30, i * SIZE + SIZE + 30);
 			}
 			else if (Map[i][j] == 5) {
-				dc->MoveTo(j * 38 + 30, i * 38 + 38 + 30);
-				dc->LineTo(j * 38 + 30, i * 38 + 30);
-				dc->LineTo(j * 38 + 38 + 30, i * 38 + 30);
+				dc->MoveTo(j * SIZE + 30, i * SIZE + SIZE + 30);
+				dc->LineTo(j * SIZE + 30, i * SIZE + 30);
+				dc->LineTo(j * SIZE + SIZE + 30, i * SIZE + 30);
 			}
 			else if (Map[i][j] == 6) {
-				dc->LineTo(j * 38 + 38 + 30, i * 38 + 30);
-				dc->LineTo(j * 38 + 38 + 30, i * 38 + 38 + 30);
+				dc->LineTo(j * SIZE + SIZE + 30, i * SIZE + 30);
+				dc->LineTo(j * SIZE + SIZE + 30, i * SIZE + SIZE + 30);
 			}
 			else if (Map[i][j] == 7) {
-				dc->LineTo(j * 38 + 30, i * 38 + 38 + 30);
-				dc->LineTo(j * 38 + 38 + 30, i * 38 + 38 + 30);
+				dc->LineTo(j * SIZE + 30, i * SIZE + SIZE + 30);
+				dc->LineTo(j * SIZE + SIZE + 30, i * SIZE + SIZE + 30);
 			}
 			else if (Map[i][j] == 8) {
-				dc->MoveTo(j * 38 + 30, i * 38 + 38 + 30);
-				dc->LineTo(j * 38 + 38 + 30, i * 38 + 38 + 30);
-				dc->LineTo(j * 38 + 38 + 30, i * 38 + 30);
+				dc->MoveTo(j * SIZE + 30, i * SIZE + SIZE + 30);
+				dc->LineTo(j * SIZE + SIZE + 30, i * SIZE + SIZE + 30);
+				dc->LineTo(j * SIZE + SIZE + 30, i * SIZE + 30);
 			}
 			else if (Map[i][j] == 9) {
-				dc->LineTo(j * 38 + 30, i * 38 + 38 + 30);
-				dc->MoveTo(j * 38 + 38 + 30, i * 38 + 30);
-				dc->LineTo(j * 38 + 38 + 30, i * 38 + 38 + 30);
+				dc->LineTo(j * SIZE + 30, i * SIZE + SIZE + 30);
+				dc->MoveTo(j * SIZE + SIZE + 30, i * SIZE + 30);
+				dc->LineTo(j * SIZE + SIZE + 30, i * SIZE + SIZE + 30);
 			}
 			else if (Map[i][j] == 10) {
-				dc->LineTo(j * 38 + 38 + 30, i * 38 + 30);
-				dc->MoveTo(j * 38 + 30, i * 38 + 38 + 30);
-				dc->LineTo(j * 38 + 38 + 30, i * 38 + 38 + 30);
+				dc->LineTo(j * SIZE + SIZE + 30, i * SIZE + 30);
+				dc->MoveTo(j * SIZE + 30, i * SIZE + SIZE + 30);
+				dc->LineTo(j * SIZE + SIZE + 30, i * SIZE + SIZE + 30);
 			}
 			else if (Map[i][j] == 11) {
-				dc->LineTo(j * 38 + 38 + 30, i * 38 + 30);
-				dc->LineTo(j * 38 + 38 + 30, i * 38 + 38 + 30);
-				dc->LineTo(j * 38 + 30, i * 38 + 38 + 30);
+				dc->LineTo(j * SIZE + SIZE + 30, i * SIZE + 30);
+				dc->LineTo(j * SIZE + SIZE + 30, i * SIZE + SIZE + 30);
+				dc->LineTo(j * SIZE + 30, i * SIZE + SIZE + 30);
 
 			}
 			else if (Map[i][j] == 12) {
-				dc->MoveTo(j * 38 + 38 + 30, i * 38 + 30);
-				dc->LineTo(j * 38 + 30, i * 38 + 30);
-				dc->LineTo(j * 38 + 30, i * 38 + 38 + 30);
-				dc->LineTo(j * 38 + 38 + 30, i * 38 + 38 + 30);
+				dc->MoveTo(j * SIZE + SIZE + 30, i * SIZE + 30);
+				dc->LineTo(j * SIZE + 30, i * SIZE + 30);
+				dc->LineTo(j * SIZE + 30, i * SIZE + SIZE + 30);
+				dc->LineTo(j * SIZE + SIZE + 30, i * SIZE + SIZE + 30);
 			}
 			else if (Map[i][j] == 13) {
-				dc->MoveTo(j * 38 + 30, i * 38 + 38 + 30);
-				dc->LineTo(j * 38 + 30, i * 38 + 30);
-				dc->LineTo(j * 38 + 38 + 30, i * 38 + 30);
-				dc->LineTo(j * 38 + 38 + 30, i * 38 + 38 + 30);
+				dc->MoveTo(j * SIZE + 30, i * SIZE + SIZE + 30);
+				dc->LineTo(j * SIZE + 30, i * SIZE + 30);
+				dc->LineTo(j * SIZE + SIZE + 30, i * SIZE + 30);
+				dc->LineTo(j * SIZE + SIZE + 30, i * SIZE + SIZE + 30);
 			}
 			else if (Map[i][j] == 14) {
-				dc->LineTo(j * 38 + 30, i * 38 + 38 + 30);
-				dc->LineTo(j * 38 + 38 + 30, i * 38 + 38 + 30);
-				dc->LineTo(j * 38 + 38 + 30, i * 38 + 30);
+				dc->LineTo(j * SIZE + 30, i * SIZE + SIZE + 30);
+				dc->LineTo(j * SIZE + SIZE + 30, i * SIZE + SIZE + 30);
+				dc->LineTo(j * SIZE + SIZE + 30, i * SIZE + 30);
 			}
 			else if (Map[i][j] == 15) {
-				dc->Rectangle(j * 38 + 30, i * 38 + 30, j * 38 + 38 + 30, i * 38 + 38 + 30);
+				dc->Rectangle(j * SIZE + 30, i * SIZE + 30, j * SIZE + SIZE + 30, i * SIZE + SIZE + 30);
 			}
 			if (MapPoint[i][j] == 1) {
 				dc->SelectObject(pointbrush);
 				dc->SelectStockObject(NULL_PEN);
-				dc->Ellipse(j * 38 + 30 + 16, i * 38 + 30 + 16, j * 38 + 30 + 22, i * 38 + 30 + 22);
+				dc->Ellipse(j * SIZE + 30 + 16, i * SIZE + 30 + 16, j * SIZE + 30 + 22, i * SIZE + 30 + 22);
 				dc->SelectObject(brush);
 				dc->SelectObject(pen);
 			}
@@ -249,13 +249,13 @@ void CPacmanView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		pacThread->ResumeThread();
 	}
 	if (nChar == VK_SPACE) {
-		if (pacThread_Suspended == true) {
+		if (pacThread_Suspended == 1) {
 			pacThread->ResumeThread();
-			pacThread_Suspended = false;
+			pacThread_Suspended = 0;
 		}
 		else {
 			pacThread->SuspendThread();
-			pacThread_Suspended = true;
+			pacThread_Suspended = 1;
 		}
 	}
 	else

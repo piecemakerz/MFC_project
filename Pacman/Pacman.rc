@@ -101,6 +101,8 @@ IDB_BLACKRECT           BITMAP                  "res\\bmp00001.bmp"
 
 IDB_SMALL_BLACKRECT     BITMAP                  "res\\bmp00002.bmp"
 
+IDB_PACMANLIFE          BITMAP                  "res\\bmp00003.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

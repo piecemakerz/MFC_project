@@ -79,7 +79,7 @@ BOOL PacmanThread::InitInstance()
 	dcmem_rect.SelectObject(&black_rect);
 	dcmem_smallrect.SelectObject(&small_black_rect);
 
-	StretchBlt(*dc, 30 + 38 * 3 + 4, 30 + 38 * 3 + 3, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, SRCCOPY);
+	StretchBlt(*dc, 30 + SIZE * 3 + 4, 30 + SIZE * 3 + 3, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, SRCCOPY);
 	point = 1;
 	return TRUE;
 }
@@ -113,16 +113,24 @@ int PacmanThread::MovePacman(CDC* dc)
 
 	int i = 1;
 	int pos_x, pos_y, prev_x, prev_y;
-	pos_x = 30 + 38 * 3 + 4;
-	pos_y = 30 + 38 * 3 + 3;
+	pos_x = 30 + SIZE * 3 + 6;
+	pos_y = 30 + SIZE * 3 + 6;
 	prev_x = pos_x; prev_y = pos_y;
 
 	dc->SetTextColor(RGB(255, 255, 255));
 	dc->SetBkColor(RGB(0, 0, 0));
 
 	while (true) {
-		strpoint.Format(_T("point : %d"), point);
+		dc->Rectangle(800, 130, 1000, 200);
+		strpoint.Format(_T("point : %d, %d, %d"), point, prev_x, prev_y);
 		dc->TextOut(800, 130, strpoint);
+
+		if (((prev_x >= 28 && prev_x <= 40) && (prev_y >= 30 + SIZE * 9 - 20 && prev_y <= 30+ SIZE * 9 + 20)) && direction == VK_LEFT)
+			pos_x = 30 + SIZE * 16;
+
+		else if (((prev_x >= 30 + SIZE * 16 - 3 && prev_x<= 30 + SIZE * 16 + 3 )&& (prev_y >= 30 + SIZE * 9 - 20 && prev_y <= 30 + SIZE * 9 + 20)) && direction == VK_RIGHT)
+			pos_x = 30;
+
 		switch (direction) {
 			
 		case VK_LEFT:
@@ -244,7 +252,7 @@ int PacmanThread::MovePacman(CDC* dc)
 			break;
 		}
 		prev_x = pos_x; prev_y = pos_y;
-		Sleep(15);
+		Sleep(10);
 	}
 	return 0;
 }

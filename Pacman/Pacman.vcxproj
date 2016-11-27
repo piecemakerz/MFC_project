@@ -224,6 +224,7 @@
     <Image Include="res\bitmap9.bmp" />
     <Image Include="res\bmp00001.bmp" />
     <Image Include="res\bmp00002.bmp" />
+    <Image Include="res\bmp00003.bmp" />
     <Image Include="res\Pacman.ico" />
     <Image Include="res\PacmanDoc.ico" />
     <Image Include="res\Toolbar.bmp" />

@@ -4,6 +4,7 @@
 
 // PacmanThread
 #include "PacmanView.h"
+#define SIZE 42
 class CPacmanView;
 class PacmanThread : public CWinThread
 {
