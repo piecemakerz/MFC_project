@@ -69,7 +69,7 @@ BOOL PacmanThread::InitInstance()
 	dcmem_right1.SelectObject(&pacman_bitmap_right1);
 	dcmem_right2.SelectObject(&pacman_bitmap_right2);
 
-	::TransparentBlt(*dc, 30 + 36 * 3 + 4, 30 + 36 * 3 - 3, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, RGB(0,0,0));
+	::TransparentBlt(*dc, 30 + 38 * 3 + 3, 30 + 38 * 3 + 3, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, RGB(0,0,0));
 	return TRUE;
 }
 
@@ -98,10 +98,10 @@ int PacmanThread::MovePacman(CDC* dc)
 {
 	CBrush brush(RGB(0, 0, 0));
 	dc->SelectObject(brush);
-	int i = 2;
+	int i = 1;
 	int pos_x, pos_y, prev_x, prev_y;
-	pos_x = 30 + 36 * 3 + 4;
-	pos_y = 30 + 36 * 3 - 3;
+	pos_x = 30 + 38 * 3 + 3;
+	pos_y = 30 + 38 * 3 + 3;
 	prev_x = pos_x; prev_y = pos_y;
 	while (true) {
 		switch (direction) {
@@ -114,15 +114,15 @@ int PacmanThread::MovePacman(CDC* dc)
 			dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
 			prev_x = pos_x; prev_y = pos_y;
 
-			if (left<=5) {
+			if (left<=15) {
 				left += 1;
 				::TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_left1.bmWidth, pacman_bmpinfo_left1.bmHeight, dcmem_left1, 0, 0, pacman_bmpinfo_left1.bmWidth, pacman_bmpinfo_left1.bmHeight, RGB(0, 0, 0));
 			}
 
 			else {
-				if (left < 10)
+				if (left < 30)
 					left += 1;
-				if (left >= 10)
+				if (left >= 30)
 					left = 0;
 
 				::TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_left2.bmWidth, pacman_bmpinfo_left2.bmHeight, dcmem_left2, 0, 0, pacman_bmpinfo_left2.bmWidth, pacman_bmpinfo_left2.bmHeight, RGB(0, 0, 0));
@@ -137,15 +137,15 @@ int PacmanThread::MovePacman(CDC* dc)
 			dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
 			prev_x = pos_x; prev_y = pos_y;
 
-			if (right <= 5) {
+			if (right <= 15) {
 				right += 1;
 				::TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_right1.bmWidth, pacman_bmpinfo_right1.bmHeight, dcmem_right1, 0, 0, pacman_bmpinfo_right1.bmWidth, pacman_bmpinfo_right1.bmHeight, RGB(0, 0, 0));
 			}
 
 			else {
-				if (right < 10)
+				if (right < 30)
 					right += 1;
-				if (right >= 10)
+				if (right >= 30)
 					right = 0;
 
 				::TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_right2.bmWidth, pacman_bmpinfo_right2.bmHeight, dcmem_right2, 0, 0, pacman_bmpinfo_right2.bmWidth, pacman_bmpinfo_right2.bmHeight, RGB(0, 0, 0));
@@ -160,15 +160,15 @@ int PacmanThread::MovePacman(CDC* dc)
 			dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
 			prev_x = pos_x; prev_y = pos_y;
 
-			if (up <= 5) {
+			if (up <= 15) {
 				up += 1;
 				::TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, RGB(0, 0, 0));
 			}
 
 			else {
-				if (up < 10)
+				if (up < 30)
 					up += 1;
-				if (up >= 10)
+				if (up >= 30)
 					up = 0;
 				::TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_up2.bmWidth, pacman_bmpinfo_up2.bmHeight, dcmem_up2, 0, 0, pacman_bmpinfo_up2.bmWidth, pacman_bmpinfo_up2.bmHeight, RGB(0, 0, 0));
 			}
@@ -182,22 +182,22 @@ int PacmanThread::MovePacman(CDC* dc)
 			dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
 			prev_x = pos_x; prev_y = pos_y;
 
-			if (down < 5) {
+			if (down < 15) {
 				down += 1;
 				::TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_down1.bmWidth, pacman_bmpinfo_down1.bmHeight, dcmem_down1, 0, 0, pacman_bmpinfo_down1.bmWidth, pacman_bmpinfo_down1.bmHeight, RGB(0, 0, 0));
 
 			}
 			else {
-				if (down < 10)
+				if (down < 30)
 					down += 1;
-				if(down >= 10)
+				if(down >= 30)
 					down = 0;
 				::TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_down2.bmWidth, pacman_bmpinfo_down2.bmHeight, dcmem_down2, 0, 0, pacman_bmpinfo_down2.bmWidth, pacman_bmpinfo_down2.bmHeight, RGB(0, 0, 0));
 	
 			}
 			break;
 		}
-		Sleep(30);
+		Sleep(15);
 	}
 	return 0;
 }
@@ -205,19 +205,19 @@ int PacmanThread::MovePacman(CDC* dc)
 bool PacmanThread::CrashCheck(int pos_x, int pos_y)
 {
 	if (direction == VK_LEFT) {
-		if (GetPixel(*dc, pos_x, pos_y) == RGB(0, 0, 255) || GetPixel(*dc, pos_x, pos_y + 31) == RGB(0, 0, 255) || GetPixel(*dc, pos_x, pos_y + 16) == RGB(0, 0, 255))
+		if (GetPixel(*dc, pos_x - 1, pos_y) == RGB(0, 0, 255) || GetPixel(*dc, pos_x - 1, pos_y + 32) == RGB(0, 0, 255) || GetPixel(*dc, pos_x - 1, pos_y + 16) == RGB(0, 0, 255))
 			return true;
 	}
 	else if (direction == VK_RIGHT) {
-		if (GetPixel(*dc, pos_x + 31, pos_y) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 31, pos_y + 31) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 31, pos_y + 16) == RGB(0, 0, 255))
+		if (GetPixel(*dc, pos_x + 32 + 1, pos_y) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32 + 1, pos_y + 32) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32 + 1, pos_y + 16) == RGB(0, 0, 255))
 			return true;
 	}
 	else if (direction == VK_UP) {
-		if (GetPixel(*dc, pos_x, pos_y) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 31, pos_y) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 16, pos_y) == RGB(0, 0, 255))
+		if (GetPixel(*dc, pos_x, pos_y - 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32, pos_y - 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 16, pos_y - 1) == RGB(0, 0, 255))
 			return true;
 	}
 	else if (direction == VK_DOWN) {
-		if (GetPixel(*dc, pos_x, pos_y + 31) == RGB(0, 0, 255) || GetPixel(*dc, pos_x+ 31, pos_y + 31) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 16, pos_y + 31) == RGB(0, 0, 255))
+		if (GetPixel(*dc, pos_x, pos_y + 32 + 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x+ 32, pos_y + 32 + 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 16, pos_y + 32 + 1) == RGB(0, 0, 255))
 			return true;
 	}
 	return false;
