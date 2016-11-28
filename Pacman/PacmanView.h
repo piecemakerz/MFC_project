@@ -63,6 +63,7 @@ public:
 	PacmanThread* pacThread;
 	CRect rect;
 	BOOL pacThread_Suspended;
+	int totalpoint;
 // 작업입니다.
 public:
 

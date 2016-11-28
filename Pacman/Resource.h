@@ -18,12 +18,24 @@
 #define IDB_SMALL_BLACKRECT             320
 #define IDB_BITMAP1                     327
 #define IDB_PACMANLIFE                  327
+#define IDB_REDGHOSTRIGHT               328
+#define IDB_REDGHOSTLEFT                329
+#define IDB_BLUE_GHOSTRIGHT             330
+#define IDB_BLUE_GHOSTLEFT              331
+#define IDB_GREEN_GHOSTRIGHT            332
+#define IDB_GREEN_GHOSTLEFT             333
+#define IDB_EMERALD_GHOSTRIGHT          334
+#define IDB_BITMAP9                     335
+#define IDB_EMERALD_GHOSTLEFT           335
+#define IDB_ILL_GHOSTRIGHT              336
+#define IDB_ILL_GHOSTLEFT               337
+#define IDB_PACMANDIE                   338
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        328
+#define _APS_NEXT_RESOURCE_VALUE        339
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           310

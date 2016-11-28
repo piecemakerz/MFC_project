@@ -103,6 +103,28 @@ IDB_SMALL_BLACKRECT     BITMAP                  "res\\bmp00002.bmp"
 
 IDB_PACMANLIFE          BITMAP                  "res\\bmp00003.bmp"
 
+IDB_REDGHOSTRIGHT       BITMAP                  "res\\bitmap10.bmp"
+
+IDB_REDGHOSTLEFT        BITMAP                  "res\\bitmap11.bmp"
+
+IDB_BLUE_GHOSTRIGHT     BITMAP                  "res\\bitmap12.bmp"
+
+IDB_BLUE_GHOSTLEFT      BITMAP                  "res\\bitmap13.bmp"
+
+IDB_GREEN_GHOSTRIGHT    BITMAP                  "res\\bitmap14.bmp"
+
+IDB_GREEN_GHOSTLEFT     BITMAP                  "res\\bitmap15.bmp"
+
+IDB_EMERALD_GHOSTRIGHT  BITMAP                  "res\\bitmap16.bmp"
+
+IDB_EMERALD_GHOSTLEFT   BITMAP                  "res\\bitmap17.bmp"
+
+IDB_ILL_GHOSTRIGHT      BITMAP                  "res\\bitmap20.bmp"
+
+IDB_ILL_GHOSTLEFT       BITMAP                  "res\\bitmap21.bmp"
+
+IDB_PACMANDIE           BITMAP                  "res\\bitmap23.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

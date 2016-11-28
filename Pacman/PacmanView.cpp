@@ -35,10 +35,13 @@ END_MESSAGE_MAP()
 
 CPacmanView::CPacmanView()
 {
+	totalpoint = 0;
 	for (int i = 0; i < M; i++)
 		for (int j = 0; j < N; j++) {
-			if (Map[i][j] <= 8)
+			if (Map[i][j] <= 8) {
 				MapPoint[i][j] = 1;
+				totalpoint++;
+			}
 		}
 	MapPoint[3][8] = 0;
 	MapPoint[5][4] = 0;
@@ -49,10 +52,15 @@ CPacmanView::CPacmanView()
 	MapPoint[15][8] = 0;
 	MapPoint[17][4] = 0;
 	MapPoint[17][12] = 0;
+	MapPoint[8][0] = 0;
+	MapPoint[8][16] = 0;
+	totalpoint -= 11;
 	
 	for (int i = 5; i <= 7; i++) {
-		for (int j = 0; j <= 2; j++)
+		for (int j = 0; j <= 2; j++){
 			MapPoint[i][j] = 0;
+			totalpoint--;
+			}
 		for (int j = 14; j <= 16; j++)
 			MapPoint[i][j] = 0;
 	}
@@ -62,7 +70,7 @@ CPacmanView::CPacmanView()
 		for (int j = 14; j <= 16; j++)
 			MapPoint[i][j] = 0;
 	}
-
+	
 	pacThread_Suspended = false;
 }
 
@@ -72,8 +80,6 @@ CPacmanView::~CPacmanView()
 
 BOOL CPacmanView::PreCreateWindow(CREATESTRUCT& cs)
 {
-	// TODO: CREATESTRUCT cs를 수정하여 여기에서
-	//  Window 클래스 또는 스타일을 수정합니다.
 	return CView::PreCreateWindow(cs);
 }
 
