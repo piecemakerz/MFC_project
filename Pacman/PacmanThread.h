@@ -16,6 +16,8 @@ protected:
 public:
 	CPacmanApp* pApp;
 	CPacmanView* pView;
+	CDC* dc;
+
 	CBitmap pacman_bitmap_up1;
 	BITMAP pacman_bmpinfo_up1;
 	CBitmap pacman_bitmap_up2;
@@ -55,7 +57,6 @@ public:
 
 	int point;
 
-	CDC* dc;
 	UINT direction;
 
 public:

@@ -103,9 +103,9 @@ IDB_SMALL_BLACKRECT     BITMAP                  "res\\bmp00002.bmp"
 
 IDB_PACMANLIFE          BITMAP                  "res\\bmp00003.bmp"
 
-IDB_REDGHOSTRIGHT       BITMAP                  "res\\bitmap10.bmp"
+IDB_RED_GHOSTRIGHT      BITMAP                  "res\\bitmap10.bmp"
 
-IDB_REDGHOSTLEFT        BITMAP                  "res\\bitmap11.bmp"
+IDB_RED_GHOSTLEFT       BITMAP                  "res\\bitmap11.bmp"
 
 IDB_BLUE_GHOSTRIGHT     BITMAP                  "res\\bitmap12.bmp"
 

@@ -12,6 +12,8 @@
 #include "PacmanDoc.h"
 #include "PacmanView.h"
 #include "PacmanThread.h"
+#include "GhostThread.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -61,17 +63,23 @@ CPacmanView::CPacmanView()
 			MapPoint[i][j] = 0;
 			totalpoint--;
 			}
-		for (int j = 14; j <= 16; j++)
+		for (int j = 14; j <= 16; j++) {
 			MapPoint[i][j] = 0;
+			totalpoint--;
+		}
 	}
 	for (int i = 9; i <= 11; i++) {
-		for (int j = 0; j <= 2; j++)
+		for (int j = 0; j <= 2; j++) {
 			MapPoint[i][j] = 0;
-		for (int j = 14; j <= 16; j++)
+			totalpoint--;
+		}
+		for (int j = 14; j <= 16; j++) {
 			MapPoint[i][j] = 0;
+			totalpoint--;
+		}
 	}
 	
-	pacThread_Suspended = false;
+	Thread_Suspended = false;
 }
 
 CPacmanView::~CPacmanView()
@@ -97,8 +105,26 @@ void CPacmanView::OnDraw(CDC* pDC)
 	SetMap(pDC);
 
 	pacThread = (PacmanThread*)(AfxBeginThread(RUNTIME_CLASS(PacmanThread)));
+	
+	Sleep(5000);
+	rghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
+	rghostThread->color = 0;
+	rghostThread->ResumeThread();
 
-	// TODO: 여기에 원시 데이터에 대한 그리기 코드를 추가합니다.
+	Sleep(5000);
+	bghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
+	bghostThread->color = 1;
+	bghostThread->ResumeThread();
+
+	Sleep(5000);
+	gghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
+	gghostThread->color = 2;
+	gghostThread->ResumeThread();
+
+	Sleep(5000);
+	eghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
+	eghostThread->color = 3;
+	eghostThread->ResumeThread();
 }
 
 
@@ -255,13 +281,13 @@ void CPacmanView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		pacThread->ResumeThread();
 	}
 	if (nChar == VK_SPACE) {
-		if (pacThread_Suspended == 1) {
+		if (Thread_Suspended == 1) {
 			pacThread->ResumeThread();
-			pacThread_Suspended = 0;
+			Thread_Suspended = 0;
 		}
 		else {
 			pacThread->SuspendThread();
-			pacThread_Suspended = 1;
+			Thread_Suspended = 1;
 		}
 	}
 	else

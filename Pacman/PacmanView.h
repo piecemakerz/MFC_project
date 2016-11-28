@@ -8,8 +8,11 @@
 #define SIZE 42
 #include "PacmanDoc.h"
 #include "PacmanThread.h"
+#include "GhostThread.h"
 
 class PacmanThread;
+class GhostThread;
+
 class CPacmanView : public CView
 {
 protected: // serialization에서만 만들어집니다.
@@ -61,8 +64,13 @@ public:
 	};//[8][9]값은 입구 일단 0으로 처리
 	int MapPoint[19][17] = { 0 };
 	PacmanThread* pacThread;
+	GhostThread* rghostThread;
+	GhostThread* bghostThread;
+	GhostThread* eghostThread;
+	GhostThread* gghostThread;
+
 	CRect rect;
-	BOOL pacThread_Suspended;
+	BOOL Thread_Suspended;
 	int totalpoint;
 // 작업입니다.
 public:

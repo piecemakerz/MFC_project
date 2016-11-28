@@ -185,6 +185,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GhostThread.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="Pacman.h" />
     <ClInclude Include="PacmanDoc.h" />
@@ -195,6 +196,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GhostThread.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="Pacman.cpp" />
     <ClCompile Include="PacmanDoc.cpp" />

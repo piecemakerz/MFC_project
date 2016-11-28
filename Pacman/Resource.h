@@ -19,13 +19,13 @@
 #define IDB_BITMAP1                     327
 #define IDB_PACMANLIFE                  327
 #define IDB_REDGHOSTRIGHT               328
-#define IDB_REDGHOSTLEFT                329
+#define IDB_RED_GHOSTRIGHT              328
+#define IDB_RED_GHOSTLEFT               329
 #define IDB_BLUE_GHOSTRIGHT             330
 #define IDB_BLUE_GHOSTLEFT              331
 #define IDB_GREEN_GHOSTRIGHT            332
 #define IDB_GREEN_GHOSTLEFT             333
 #define IDB_EMERALD_GHOSTRIGHT          334
-#define IDB_BITMAP9                     335
 #define IDB_EMERALD_GHOSTLEFT           335
 #define IDB_ILL_GHOSTRIGHT              336
 #define IDB_ILL_GHOSTLEFT               337

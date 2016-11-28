@@ -111,7 +111,7 @@ int PacmanThread::MovePacman(CDC* dc)
 	dc->SelectObject(brush);
 	CString strpoint;
 
-	int i = 2;
+	int i = 1;
 	int pos_x, pos_y, prev_x, prev_y;
 	pos_x = 30 + SIZE * 3 + 6;
 	pos_y = 30 + SIZE * 3 + 6;
@@ -251,7 +251,7 @@ int PacmanThread::MovePacman(CDC* dc)
 			break;
 		}
 		prev_x = pos_x; prev_y = pos_y;
-		Sleep(20);
+		Sleep(10);
 	}
 	return 0;
 }
