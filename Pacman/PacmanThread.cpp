@@ -5,11 +5,10 @@
 #include "Pacman.h"
 #include "PacmanThread.h"
 #include "PacmanView.h"
-
+#include<afxmt.h> 
 // PacmanThread
-
+CCriticalSection g_cs;
 IMPLEMENT_DYNCREATE(PacmanThread, CWinThread)
-
 PacmanThread::PacmanThread()
 {
 }
@@ -20,6 +19,7 @@ PacmanThread::~PacmanThread()
 
 BOOL PacmanThread::InitInstance()
 {
+	g_cs.Lock();
 	direction = VK_UP;
 
 	pApp = (CPacmanApp*)AfxGetApp();
@@ -79,8 +79,9 @@ BOOL PacmanThread::InitInstance()
 	dcmem_rect.SelectObject(&black_rect);
 	dcmem_smallrect.SelectObject(&small_black_rect);
 
-	StretchBlt(*dc, 30 + SIZE * 3 + 4, 30 + SIZE * 3 + 3, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, SRCCOPY);
+	TransparentBlt(*dc, 30 + SIZE * 3 + 4, 30 + SIZE * 3 + 3, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, RGB(0,0,0));
 	point = 0;
+	g_cs.Unlock();
 	return TRUE;
 }
 
@@ -107,6 +108,7 @@ int PacmanThread::Run()
 
 int PacmanThread::MovePacman(CDC* dc)
 {
+	g_cs.Lock();
 	CBrush brush(RGB(0, 0, 0));
 	dc->SelectObject(brush);
 	CString strpoint;
@@ -124,10 +126,10 @@ int PacmanThread::MovePacman(CDC* dc)
 		strpoint.Format(_T("point : %d"), point);
 		dc->TextOut(800, 130, strpoint);
 
-		if (((prev_x >= 28 && prev_x <= 40) && (prev_y >= 30 + SIZE * 9 - 20 && prev_y <= 30+ SIZE * 9 + 20)) && direction == VK_LEFT)
+		if (((prev_x >= 28 && prev_x <= 40) && (prev_y >= 30 + SIZE * 9 - 20 && prev_y <= 30+ SIZE * 9 + 20)) && direction == VK_LEFT) // 왼쪽 통로
 			pos_x = 30 + SIZE * 16;
 
-		else if (((prev_x >= 30 + SIZE * 16 - 3 && prev_x<= 30 + SIZE * 16 + 3 )&& (prev_y >= 30 + SIZE * 9 - 20 && prev_y <= 30 + SIZE * 9 + 20)) && direction == VK_RIGHT)
+		else if (((prev_x >= 30 + SIZE * 16 - 3 && prev_x<= 30 + SIZE * 16 + 3 )&& (prev_y >= 30 + SIZE * 9 - 20 && prev_y <= 30 + SIZE * 9 + 20)) && direction == VK_RIGHT) // 오른쪽 통로
 			pos_x = 30;
 
 		switch (direction) {
@@ -149,7 +151,7 @@ int PacmanThread::MovePacman(CDC* dc)
 			if (left<=15) {
 				left += 1;
 				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
-				StretchBlt(*dc, pos_x, pos_y, pacman_bmpinfo_left1.bmWidth, pacman_bmpinfo_left1.bmHeight, dcmem_left1, 0, 0, pacman_bmpinfo_left1.bmWidth, pacman_bmpinfo_left1.bmHeight, SRCCOPY);
+				TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_left1.bmWidth, pacman_bmpinfo_left1.bmHeight, dcmem_left1, 0, 0, pacman_bmpinfo_left1.bmWidth, pacman_bmpinfo_left1.bmHeight, RGB(0,0,0));
 			}
 
 			else {
@@ -158,7 +160,7 @@ int PacmanThread::MovePacman(CDC* dc)
 				if (left >= 30)
 					left = 0;
 				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
-				StretchBlt(*dc, pos_x, pos_y, pacman_bmpinfo_left2.bmWidth, pacman_bmpinfo_left2.bmHeight, dcmem_left2, 0, 0, pacman_bmpinfo_left2.bmWidth, pacman_bmpinfo_left2.bmHeight, SRCCOPY);
+				TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_left2.bmWidth, pacman_bmpinfo_left2.bmHeight, dcmem_left2, 0, 0, pacman_bmpinfo_left2.bmWidth, pacman_bmpinfo_left2.bmHeight, RGB(0,0,0));
 			}
 			break;
 
@@ -178,7 +180,7 @@ int PacmanThread::MovePacman(CDC* dc)
 			if (right <= 15) {
 				right += 1;
 				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
-				StretchBlt(*dc, pos_x, pos_y, pacman_bmpinfo_right1.bmWidth, pacman_bmpinfo_right1.bmHeight, dcmem_right1, 0, 0, pacman_bmpinfo_right1.bmWidth, pacman_bmpinfo_right1.bmHeight, SRCCOPY);
+				TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_right1.bmWidth, pacman_bmpinfo_right1.bmHeight, dcmem_right1, 0, 0, pacman_bmpinfo_right1.bmWidth, pacman_bmpinfo_right1.bmHeight, RGB(0,0,0));
 			}
 
 			else {
@@ -187,7 +189,7 @@ int PacmanThread::MovePacman(CDC* dc)
 				if (right >= 30)
 					right = 0;
 				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
-				StretchBlt(*dc, pos_x, pos_y, pacman_bmpinfo_right2.bmWidth, pacman_bmpinfo_right2.bmHeight, dcmem_right2, 0, 0, pacman_bmpinfo_right2.bmWidth, pacman_bmpinfo_right2.bmHeight, SRCCOPY);
+				TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_right2.bmWidth, pacman_bmpinfo_right2.bmHeight, dcmem_right2, 0, 0, pacman_bmpinfo_right2.bmWidth, pacman_bmpinfo_right2.bmHeight, RGB(0,0,0));
 			}
 			break;
 
@@ -207,7 +209,7 @@ int PacmanThread::MovePacman(CDC* dc)
 			if (up <= 15) {
 				up += 1;
 				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
-				StretchBlt(*dc, pos_x, pos_y, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, SRCCOPY);
+				TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, RGB(0,0,0));
 			}
 
 			else {
@@ -216,7 +218,7 @@ int PacmanThread::MovePacman(CDC* dc)
 				if (up >= 30)
 					up = 0;
 				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
-				StretchBlt(*dc, pos_x, pos_y, pacman_bmpinfo_up2.bmWidth, pacman_bmpinfo_up2.bmHeight, dcmem_up2, 0, 0, pacman_bmpinfo_up2.bmWidth, pacman_bmpinfo_up2.bmHeight, SRCCOPY);
+				TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_up2.bmWidth, pacman_bmpinfo_up2.bmHeight, dcmem_up2, 0, 0, pacman_bmpinfo_up2.bmWidth, pacman_bmpinfo_up2.bmHeight, RGB(0,0,0));
 			}
 			break;
 
@@ -236,7 +238,7 @@ int PacmanThread::MovePacman(CDC* dc)
 			if (down < 15) {
 				down += 1;
 				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
-				StretchBlt(*dc, pos_x, pos_y, pacman_bmpinfo_down1.bmWidth, pacman_bmpinfo_down1.bmHeight, dcmem_down1, 0, 0, pacman_bmpinfo_down1.bmWidth, pacman_bmpinfo_down1.bmHeight, SRCCOPY);
+				TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_down1.bmWidth, pacman_bmpinfo_down1.bmHeight, dcmem_down1, 0, 0, pacman_bmpinfo_down1.bmWidth, pacman_bmpinfo_down1.bmHeight, RGB(0,0,0));
 
 			}
 			else {
@@ -245,12 +247,24 @@ int PacmanThread::MovePacman(CDC* dc)
 				if(down >= 30)
 					down = 0;
 				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
-				StretchBlt(*dc, pos_x, pos_y, pacman_bmpinfo_down2.bmWidth, pacman_bmpinfo_down2.bmHeight, dcmem_down2, 0, 0, pacman_bmpinfo_down2.bmWidth, pacman_bmpinfo_down2.bmHeight,SRCCOPY);
+				TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_down2.bmWidth, pacman_bmpinfo_down2.bmHeight, dcmem_down2, 0, 0, pacman_bmpinfo_down2.bmWidth, pacman_bmpinfo_down2.bmHeight,RGB(0,0,0));
 	
 			}
 			break;
 		}
 		prev_x = pos_x; prev_y = pos_y;
+
+		rghostThread->pac_posx = pos_x;
+		rghostThread->pac_posy = pos_y;
+		bghostThread->pac_posx = pos_x;
+		bghostThread->pac_posy = pos_y;
+		gghostThread->pac_posx = pos_x;
+		gghostThread->pac_posy = pos_y;
+		eghostThread->pac_posx = pos_x;
+		eghostThread->pac_posy = pos_y;
+
+		g_cs.Unlock();
+
 		Sleep(10);
 	}
 	return 0;

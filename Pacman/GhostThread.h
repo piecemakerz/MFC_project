@@ -4,9 +4,12 @@
 
 // GhostThread
 #include "PacmanView.h"
+#include "PacmanThread.h"
 #define SIZE 42
 
 class CPacmanView;
+class PacmanThread;
+
 class GhostThread : public CWinThread
 {
 	DECLARE_DYNCREATE(GhostThread)
@@ -36,11 +39,17 @@ public:
 	CDC dcmem_smallrect;
 
 	int left;
-	int right;
 	int color; // 0 = Red, 1 = Blue, 2 = Green, 3 = Emerald
 	
+	int pac_posx;
+	int pac_posy;
+
+	int pos_x, pos_y, prev_x, prev_y;
+
 	BOOL first_start;
+	UINT direction_check[4];
 	UINT direction;
+	BOOL out_of_box;
 
 public:
 	virtual BOOL InitInstance();
@@ -50,6 +59,10 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	virtual int Run();
+	int MoveGhost(CDC* dc);
+	void Initialize(CDC* dc);
+	void CalculateDistance();
+	UINT CrashCheck();
 };
 
 

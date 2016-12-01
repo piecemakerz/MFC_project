@@ -104,27 +104,28 @@ void CPacmanView::OnDraw(CDC* pDC)
 	ScreenToClient(rect);
 	SetMap(pDC);
 
-	pacThread = (PacmanThread*)(AfxBeginThread(RUNTIME_CLASS(PacmanThread)));
-	
-	Sleep(5000);
+	pacThread = (PacmanThread*)(AfxBeginThread(RUNTIME_CLASS(PacmanThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
+
 	rghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
 	rghostThread->color = 0;
 	rghostThread->ResumeThread();
 
-	Sleep(5000);
 	bghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
 	bghostThread->color = 1;
 	bghostThread->ResumeThread();
-
-	Sleep(5000);
+	
 	gghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
 	gghostThread->color = 2;
 	gghostThread->ResumeThread();
 
-	Sleep(5000);
 	eghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
 	eghostThread->color = 3;
 	eghostThread->ResumeThread();
+
+	pacThread->rghostThread = rghostThread;
+	pacThread->bghostThread = bghostThread;
+	pacThread->gghostThread = gghostThread;
+	pacThread->eghostThread = eghostThread;
 }
 
 

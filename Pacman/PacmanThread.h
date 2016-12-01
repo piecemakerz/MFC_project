@@ -4,8 +4,11 @@
 
 // PacmanThread
 #include "PacmanView.h"
+#include "GhostThread.h"
+
 #define SIZE 42
 class CPacmanView;
+class GhostThread;
 class PacmanThread : public CWinThread
 {
 	DECLARE_DYNCREATE(PacmanThread)
@@ -58,6 +61,11 @@ public:
 	int point;
 
 	UINT direction;
+
+	GhostThread* rghostThread;
+	GhostThread* bghostThread;
+	GhostThread* eghostThread;
+	GhostThread* gghostThread;
 
 public:
 	virtual BOOL InitInstance();
