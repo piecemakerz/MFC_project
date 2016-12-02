@@ -41,7 +41,7 @@ public:
 
 	int left;
 	int color; // 0 = Red, 1 = Blue, 2 = Green, 3 = Emerald
-	
+	int i;
 	int pac_posx;
 	int pac_posy;
 
@@ -51,8 +51,8 @@ public:
 	UINT direction_check[4];
 	UINT direction;
 	BOOL out_of_box;
-
-	CCriticalSection* g_pcs;
+	CEvent* viewevent;
+	CEvent* pacevent;
 
 public:
 	virtual BOOL InitInstance();

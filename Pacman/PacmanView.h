@@ -72,7 +72,6 @@ public:
 	CRect rect;
 	BOOL Thread_Suspended;
 	int totalpoint;
-	CCriticalSection g_cs;
 	BOOL drawed;
 // 작업입니다.
 public:

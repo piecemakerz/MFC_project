@@ -35,6 +35,8 @@ END_MESSAGE_MAP()
 
 // CPacmanView »ı¼º/¼Ò¸ê
 
+CEvent viewevent(FALSE, FALSE);
+
 CPacmanView::CPacmanView()
 {
 	totalpoint = 0;
@@ -106,37 +108,39 @@ void CPacmanView::OnDraw(CDC* pDC)
 		SetMap(pDC);
 
 		pacThread = (PacmanThread*)(AfxBeginThread(RUNTIME_CLASS(PacmanThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
-		pacThread->g_pcs = &g_cs;
+		pacThread->viewevent = &viewevent;
+		viewevent.SetEvent();
 
 		rghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
 		rghostThread->color = 0;
 		pacThread->rghostThread = rghostThread;
 		rghostThread->pacThread = pacThread;
-		rghostThread->g_pcs = &g_cs;
+		rghostThread->viewevent = &viewevent;
 
 		bghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
 		bghostThread->color = 1;
 		pacThread->bghostThread = bghostThread;
 		bghostThread->pacThread = pacThread;
-		bghostThread->g_pcs = &g_cs;
+		bghostThread->viewevent = &viewevent;
 
 		gghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
 		gghostThread->color = 2;
 		pacThread->gghostThread = gghostThread;
 		gghostThread->pacThread = pacThread;
-		gghostThread->g_pcs = &g_cs;
+		gghostThread->viewevent = &viewevent;
 
 		eghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
 		eghostThread->color = 3;
 		pacThread->eghostThread = eghostThread;
 		eghostThread->pacThread = pacThread;
-		eghostThread->g_pcs = &g_cs;
+		eghostThread->viewevent = &viewevent;
 
+		pacThread->ResumeThread();
 		rghostThread->ResumeThread();
 		bghostThread->ResumeThread();
 		gghostThread->ResumeThread();
 		eghostThread->ResumeThread();
-		pacThread->ResumeThread();
+		
 		drawed = true;
 	}
 }

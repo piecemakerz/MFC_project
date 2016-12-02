@@ -57,7 +57,7 @@ public:
 	int down;
 	int left;
 	int right;
-
+	int i;
 	int point;
 
 	UINT direction;
@@ -66,10 +66,10 @@ public:
 	GhostThread* bghostThread;
 	GhostThread* eghostThread;
 	GhostThread* gghostThread;
-	CCriticalSection g_pac;
+	CEvent* viewevent;
 
-	CCriticalSection* g_pcs;
-
+	int pos_x, pos_y, prev_x, prev_y;
+	CString strpoint;
 public:
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();

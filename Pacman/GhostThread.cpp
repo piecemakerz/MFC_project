@@ -49,10 +49,12 @@ END_MESSAGE_MAP()
 
 int GhostThread::Run()
 {
-	g_pcs->Lock();
+	//viewevent->Lock();
+
 	pApp = (CPacmanApp*)AfxGetApp();
 	pView = (CPacmanView*)pApp->m_pMainWnd;
 	dc = pView->GetDC();
+
 	dcmem_rect.CreateCompatibleDC(dc);
 	dcmem_smallrect.CreateCompatibleDC(dc);
 
@@ -61,21 +63,11 @@ int GhostThread::Run()
 
 	dcmem_left.CreateCompatibleDC(dc);
 	dcmem_right.CreateCompatibleDC(dc);
-	g_pcs->Unlock();
 
+	//viewevent->SetEvent();
 
-	MoveGhost(dc);
-	return 0;
-}
-
-
-
-
-int GhostThread::MoveGhost(CDC* dc)
-{
 	Initialize(dc);
-
-	int i = 1;
+	i = 1;
 	pos_x = 30 + SIZE * 8 + 7;
 	pos_y = 30 + SIZE * 10 - 7;
 	prev_x = pos_x;
@@ -88,7 +80,21 @@ int GhostThread::MoveGhost(CDC* dc)
 		pos_x = 30;
 
 	while (true) {
-		g_pcs->Lock();
+		viewevent->Lock();
+		MoveGhost(dc);
+		viewevent->SetEvent();
+		Sleep(10);
+	}
+	return 0;
+}
+
+
+
+
+int GhostThread::MoveGhost(CDC* dc)
+{
+
+		//viewevent->Lock();
 		if (out_of_box == FALSE) {
 			pos_y -= 1;
 
@@ -99,14 +105,13 @@ int GhostThread::MoveGhost(CDC* dc)
 			
 			prev_x = pos_x;
 			prev_y = pos_y;
-			Sleep(10);
-			continue;
+			return 0;
 
 		}
-		g_pcs->Unlock();
+		//viewevent->SetEvent();
 		CalculateDistance();
 		direction = CrashCheck();
-		g_pcs->Lock();
+		//viewevent->Lock();
 		if (left <= 15) {
 			left += 1;
 			dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
@@ -122,10 +127,7 @@ int GhostThread::MoveGhost(CDC* dc)
 			TransparentBlt(*dc, pos_x, pos_y, ghost_bmpinfo_right.bmWidth, ghost_bmpinfo_right.bmHeight, dcmem_right, 0, 0, ghost_bmpinfo_right.bmWidth, ghost_bmpinfo_right.bmHeight, RGB(0, 0, 0));
 
 		}
-		g_pcs->Unlock();
-		Sleep(10);
-	}
-
+		//viewevent->SetEvent();
 	return 0;
 }
 
@@ -156,7 +158,7 @@ void GhostThread::Initialize(CDC* dc)
 		ghost_bitmap_right.LoadBitmap(IDB_EMERALD_GHOSTRIGHT);
 		Sleep(20000);
 	}
-	g_pcs->Lock();
+	viewevent->Lock();
 	ghost_bitmap_left.GetBitmap(&ghost_bmpinfo_left);
 	ghost_bitmap_right.GetBitmap(&ghost_bmpinfo_right);
 	dcmem_left.SelectObject(&ghost_bitmap_left);
@@ -165,14 +167,14 @@ void GhostThread::Initialize(CDC* dc)
 		TransparentBlt(*dc, 30 + SIZE * 8 + 8, 30 + SIZE * 10 - 7, ghost_bmpinfo_left.bmWidth, ghost_bmpinfo_left.bmHeight, dcmem_left, 0, 0, ghost_bmpinfo_left.bmWidth, ghost_bmpinfo_left.bmHeight, RGB(0,0,0));
 		first_start = FALSE;
 	}
-	g_pcs->Unlock();
+	viewevent->SetEvent();
 }
 
 
 void GhostThread::CalculateDistance()
 {
-	g_pcs->Lock();
-	pacThread->g_pac.Lock();
+	//viewevent->Lock();
+	//pacevent->Lock();
 	double left_length, right_length, up_length, down_length;
 	double arrange[4];
 	left_length = sqrt(pow((pos_x - 1) - pac_posx, 2) + pow(pos_y - pac_posy, 2));
@@ -206,14 +208,14 @@ void GhostThread::CalculateDistance()
 		else if (arrange[i] == down_length)
 			direction_check[i] = VK_DOWN;
 	}
-	pacThread->g_pac.Unlock();
-	g_pcs->Unlock();
+	//pacevent->SetEvent();
+	//viewevent->SetEvent();
 }
 
 
 UINT GhostThread::CrashCheck()
 {
-	g_pcs->Lock();
+	//viewevent->Lock();
 	for (int i = 0; i <= 3; i++) {
 		UINT direction = direction_check[i];
 		if (direction == VK_LEFT) {
@@ -245,6 +247,6 @@ UINT GhostThread::CrashCheck()
 				pos_y -= 1;
 		}
 	}
-	g_pcs->Unlock();
+	//viewevent->SetEvent();
 	return FALSE;
 }
