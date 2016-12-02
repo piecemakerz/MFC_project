@@ -80,6 +80,7 @@ CPacmanView::CPacmanView()
 	}
 	
 	Thread_Suspended = false;
+	drawed = false;
 }
 
 CPacmanView::~CPacmanView()
@@ -99,33 +100,45 @@ void CPacmanView::OnDraw(CDC* pDC)
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
+	if (!drawed) {
+		GetWindowRect(&rect);
+		ScreenToClient(rect);
+		SetMap(pDC);
 
-	GetWindowRect(&rect);
-	ScreenToClient(rect);
-	SetMap(pDC);
+		pacThread = (PacmanThread*)(AfxBeginThread(RUNTIME_CLASS(PacmanThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
+		pacThread->g_pcs = &g_cs;
 
-	pacThread = (PacmanThread*)(AfxBeginThread(RUNTIME_CLASS(PacmanThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
+		rghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
+		rghostThread->color = 0;
+		pacThread->rghostThread = rghostThread;
+		rghostThread->pacThread = pacThread;
+		rghostThread->g_pcs = &g_cs;
 
-	rghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
-	rghostThread->color = 0;
-	rghostThread->ResumeThread();
+		bghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
+		bghostThread->color = 1;
+		pacThread->bghostThread = bghostThread;
+		bghostThread->pacThread = pacThread;
+		bghostThread->g_pcs = &g_cs;
 
-	bghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
-	bghostThread->color = 1;
-	bghostThread->ResumeThread();
-	
-	gghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
-	gghostThread->color = 2;
-	gghostThread->ResumeThread();
+		gghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
+		gghostThread->color = 2;
+		pacThread->gghostThread = gghostThread;
+		gghostThread->pacThread = pacThread;
+		gghostThread->g_pcs = &g_cs;
 
-	eghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
-	eghostThread->color = 3;
-	eghostThread->ResumeThread();
+		eghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
+		eghostThread->color = 3;
+		pacThread->eghostThread = eghostThread;
+		eghostThread->pacThread = pacThread;
+		eghostThread->g_pcs = &g_cs;
 
-	pacThread->rghostThread = rghostThread;
-	pacThread->bghostThread = bghostThread;
-	pacThread->gghostThread = gghostThread;
-	pacThread->eghostThread = eghostThread;
+		rghostThread->ResumeThread();
+		bghostThread->ResumeThread();
+		gghostThread->ResumeThread();
+		eghostThread->ResumeThread();
+		pacThread->ResumeThread();
+		drawed = true;
+	}
 }
 
 

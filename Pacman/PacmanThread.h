@@ -66,6 +66,9 @@ public:
 	GhostThread* bghostThread;
 	GhostThread* eghostThread;
 	GhostThread* gghostThread;
+	CCriticalSection g_pac;
+
+	CCriticalSection* g_pcs;
 
 public:
 	virtual BOOL InitInstance();

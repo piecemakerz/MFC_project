@@ -22,7 +22,8 @@ public:
 	CPacmanApp* pApp;
 	CPacmanView* pView;
 	CDC* dc;
-
+	PacmanThread* pacThread;
+	
 	CBitmap ghost_bitmap_left;
 	BITMAP ghost_bmpinfo_left;
 	CBitmap ghost_bitmap_right;
@@ -50,6 +51,8 @@ public:
 	UINT direction_check[4];
 	UINT direction;
 	BOOL out_of_box;
+
+	CCriticalSection* g_pcs;
 
 public:
 	virtual BOOL InitInstance();
