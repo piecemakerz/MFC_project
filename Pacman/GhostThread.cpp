@@ -64,9 +64,9 @@ int GhostThread::Run()
 	dcmem_left.CreateCompatibleDC(dc);
 	dcmem_right.CreateCompatibleDC(dc);
 
+	Initialize(dc);
 	//viewevent->SetEvent();
 
-	Initialize(dc);
 	i = 1;
 	pos_x = 30 + SIZE * 8 + 7;
 	pos_y = 30 + SIZE * 10 - 7;
@@ -80,9 +80,9 @@ int GhostThread::Run()
 		pos_x = 30;
 
 	while (true) {
-		viewevent->Lock();
+		//viewevent->Lock();
 		MoveGhost(dc);
-		viewevent->SetEvent();
+		//viewevent->SetEvent();
 		Sleep(10);
 	}
 	return 0;
@@ -94,7 +94,7 @@ int GhostThread::Run()
 int GhostThread::MoveGhost(CDC* dc)
 {
 
-		//viewevent->Lock();
+		viewevent->Lock();
 		if (out_of_box == FALSE) {
 			pos_y -= 1;
 
@@ -105,13 +105,15 @@ int GhostThread::MoveGhost(CDC* dc)
 			
 			prev_x = pos_x;
 			prev_y = pos_y;
+			viewevent->SetEvent();
 			return 0;
 
 		}
-		//viewevent->SetEvent();
+		viewevent->SetEvent();
+		
 		CalculateDistance();
 		direction = CrashCheck();
-		//viewevent->Lock();
+		viewevent->Lock();
 		if (left <= 15) {
 			left += 1;
 			dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
@@ -127,7 +129,9 @@ int GhostThread::MoveGhost(CDC* dc)
 			TransparentBlt(*dc, pos_x, pos_y, ghost_bmpinfo_right.bmWidth, ghost_bmpinfo_right.bmHeight, dcmem_right, 0, 0, ghost_bmpinfo_right.bmWidth, ghost_bmpinfo_right.bmHeight, RGB(0, 0, 0));
 
 		}
-		//viewevent->SetEvent();
+		prev_x = pos_x;
+		prev_y = pos_y;
+		viewevent->SetEvent();
 	return 0;
 }
 
@@ -173,7 +177,7 @@ void GhostThread::Initialize(CDC* dc)
 
 void GhostThread::CalculateDistance()
 {
-	//viewevent->Lock();
+	viewevent->Lock();
 	//pacevent->Lock();
 	double left_length, right_length, up_length, down_length;
 	double arrange[4];
@@ -209,44 +213,52 @@ void GhostThread::CalculateDistance()
 			direction_check[i] = VK_DOWN;
 	}
 	//pacevent->SetEvent();
-	//viewevent->SetEvent();
+	viewevent->SetEvent();
 }
 
 
 UINT GhostThread::CrashCheck()
 {
-	//viewevent->Lock();
+	viewevent->Lock();
 	for (int i = 0; i <= 3; i++) {
 		UINT direction = direction_check[i];
 		if (direction == VK_LEFT) {
 			pos_x -= 1;
-			if (!(GetPixel(*dc, pos_x - 1, pos_y) == RGB(0, 0, 255) || GetPixel(*dc, pos_x - 1, pos_y + 32) == RGB(0, 0, 255) || GetPixel(*dc, pos_x - 1, pos_y + 16) == RGB(0, 0, 255)))
+			if (!(GetPixel(*dc, pos_x - 1, pos_y) == RGB(0, 0, 255) || GetPixel(*dc, pos_x - 1, pos_y + 32) == RGB(0, 0, 255) || GetPixel(*dc, pos_x - 1, pos_y + 16) == RGB(0, 0, 255))) {
+				viewevent->SetEvent();
 				return direction;
+			}
 			else
 				pos_x += 1;
 		}
 		else if (direction == VK_RIGHT) {
 			pos_x += 1;
-			if (!(GetPixel(*dc, pos_x + 32 + 1, pos_y) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32 + 1, pos_y + 32) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32 + 1, pos_y + 16) == RGB(0, 0, 255)))
+			if (!(GetPixel(*dc, pos_x + 32 + 1, pos_y) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32 + 1, pos_y + 32) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32 + 1, pos_y + 16) == RGB(0, 0, 255))) {
+				viewevent->SetEvent();
 				return direction;
+			}
 			else
 				pos_x -= 1;
 		}
 		else if (direction == VK_UP) {
 			pos_y -= 1;
-			if (!(GetPixel(*dc, pos_x, pos_y - 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32, pos_y - 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 16, pos_y - 1) == RGB(0, 0, 255)))
+			if (!(GetPixel(*dc, pos_x, pos_y - 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32, pos_y - 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 16, pos_y - 1) == RGB(0, 0, 255))) {
+				viewevent->SetEvent();
 				return direction;
+			}
 			else
 				pos_y += 1;
 		}
 		else if (direction == VK_DOWN) {
 			pos_y += 1;
-			if (!(GetPixel(*dc, pos_x, pos_y + 32 + 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32, pos_y + 32 + 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 16, pos_y + 32 + 1) == RGB(0, 0, 255)))
+			if (!(GetPixel(*dc, pos_x, pos_y + 32 + 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32, pos_y + 32 + 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 16, pos_y + 32 + 1) == RGB(0, 0, 255))) {
+				viewevent->SetEvent();
 				return direction;
+			}
 			else
 				pos_y -= 1;
 		}
 	}
-	//viewevent->SetEvent();
+	viewevent->SetEvent();
 	return FALSE;
 }

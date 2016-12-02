@@ -107,7 +107,7 @@ void CPacmanView::OnDraw(CDC* pDC)
 		ScreenToClient(rect);
 		SetMap(pDC);
 
-		pacThread = (PacmanThread*)(AfxBeginThread(RUNTIME_CLASS(PacmanThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
+		pacThread = (PacmanThread*)(AfxBeginThread(RUNTIME_CLASS(PacmanThread), THREAD_PRIORITY_ABOVE_NORMAL, 0, CREATE_SUSPENDED, NULL));
 		pacThread->viewevent = &viewevent;
 		viewevent.SetEvent();
 

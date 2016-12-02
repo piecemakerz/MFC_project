@@ -107,6 +107,7 @@ int PacmanThread::Run()
 	bghostThread->pacevent = &pacevent;
 	gghostThread->pacevent = &pacevent;
 	eghostThread->pacevent = &pacevent;
+	viewevent->Lock();
 	CBrush brush(RGB(0, 0, 0));
 	dc->SelectObject(brush);
 
@@ -117,6 +118,7 @@ int PacmanThread::Run()
 
 	dc->SetTextColor(RGB(255, 255, 255));
 	dc->SetBkColor(RGB(0, 0, 0));
+	viewevent->SetEvent();
 	while (true) {
 		MovePacman(dc);
 		Sleep(10);
@@ -136,7 +138,7 @@ int PacmanThread::MovePacman(CDC* dc)
 
 		else if (((prev_x >= 30 + SIZE * 16 - 3 && prev_x<= 30 + SIZE * 16 + 3 )&& (prev_y >= 30 + SIZE * 9 - 20 && prev_y <= 30 + SIZE * 9 + 20)) && direction == VK_RIGHT) // 오른쪽 통로
 			pos_x = 30;
-		//viewevent->SetEvent();
+		viewevent->SetEvent();
 		switch (direction) {
 			
 		case VK_LEFT:
@@ -145,7 +147,7 @@ int PacmanThread::MovePacman(CDC* dc)
 				pos_x += i;
 
 			// dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
-			//viewevent->Lock();
+			viewevent->Lock();
 			if (GetPixel(*dc, pos_x - 1, pos_y + 15) == RGB(255, 144, 0) || GetPixel(*dc, pos_x - 1, pos_y + 17) == RGB(255, 144, 0)) {
 				point++;
 				// dc->Rectangle(pos_x - 1 - 6, pos_y + 13, pos_x - 1, pos_y + 19);
@@ -166,7 +168,7 @@ int PacmanThread::MovePacman(CDC* dc)
 				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
 				TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_left2.bmWidth, pacman_bmpinfo_left2.bmHeight, dcmem_left2, 0, 0, pacman_bmpinfo_left2.bmWidth, pacman_bmpinfo_left2.bmHeight, RGB(0,0,0));
 			}
-			//viewevent->SetEvent();
+			viewevent->SetEvent();
 			break;
 
 		case VK_RIGHT:
@@ -174,7 +176,7 @@ int PacmanThread::MovePacman(CDC* dc)
 			if (CrashCheck(pos_x, pos_y))
 				pos_x -= i;
 			// dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
-			//viewevent->Lock();
+			viewevent->Lock();
 			if (GetPixel(*dc, pos_x + 32 + 1, pos_y + 15) == RGB(255, 144, 0) || GetPixel(*dc, pos_x + 32 + 1, pos_y + 17) == RGB(255, 144, 0)) {
 				point++;
 				// dc->Rectangle(pos_x + 32 + 1 + 6, pos_y + 13, pos_x + 32 + 1, pos_y + 19);
@@ -195,7 +197,7 @@ int PacmanThread::MovePacman(CDC* dc)
 				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
 				TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_right2.bmWidth, pacman_bmpinfo_right2.bmHeight, dcmem_right2, 0, 0, pacman_bmpinfo_right2.bmWidth, pacman_bmpinfo_right2.bmHeight, RGB(0,0,0));
 			}
-			//viewevent->SetEvent();
+			viewevent->SetEvent();
 			break;
 
 		case VK_UP:
@@ -204,7 +206,7 @@ int PacmanThread::MovePacman(CDC* dc)
 				pos_y += i;
 
 			// dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
-			//viewevent->Lock();
+			viewevent->Lock();
 			if (GetPixel(*dc, pos_x + 15, pos_y - 1) == RGB(255, 144, 0) || GetPixel(*dc, pos_x + 17, pos_y - 1) == RGB(255, 144, 0)) {
 				point++;
 				// dc->Rectangle(pos_x + 13, pos_y - 1 - 6, pos_x + 13 + 6, pos_y -1);
@@ -225,7 +227,7 @@ int PacmanThread::MovePacman(CDC* dc)
 				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
 				TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_up2.bmWidth, pacman_bmpinfo_up2.bmHeight, dcmem_up2, 0, 0, pacman_bmpinfo_up2.bmWidth, pacman_bmpinfo_up2.bmHeight, RGB(0,0,0));
 			}
-			//viewevent->SetEvent();
+			viewevent->SetEvent();
 			break;
 
 		case VK_DOWN:
@@ -234,7 +236,7 @@ int PacmanThread::MovePacman(CDC* dc)
 				pos_y -= i;
 
 			// dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
-			//viewevent->Lock();
+			viewevent->Lock();
 			if (GetPixel(*dc, pos_x + 15, pos_y + 32 + 1) == RGB(255, 144, 0) || GetPixel(*dc, pos_x + 17, pos_y + 32 + 1) == RGB(255, 144, 0)) {
 				point++;
 				// dc->Rectangle(pos_x + 13, pos_y + 32 + 1 + 6, pos_x + 13 + 6, pos_y + 32 + 1);
@@ -256,7 +258,7 @@ int PacmanThread::MovePacman(CDC* dc)
 				TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_down2.bmWidth, pacman_bmpinfo_down2.bmHeight, dcmem_down2, 0, 0, pacman_bmpinfo_down2.bmWidth, pacman_bmpinfo_down2.bmHeight,RGB(0,0,0));
 	
 			}
-			//viewevent->SetEvent();
+			viewevent->SetEvent();
 			break;
 		}
 		prev_x = pos_x; prev_y = pos_y;
@@ -270,29 +272,36 @@ int PacmanThread::MovePacman(CDC* dc)
 		eghostThread->pac_posx = pos_x;
 		eghostThread->pac_posy = pos_y;
 
-		viewevent->SetEvent();
 	return 0;
 }
 
 bool PacmanThread::CrashCheck(int pos_x, int pos_y)
 {
-	//viewevent->Lock();
+	viewevent->Lock();
 	if (direction == VK_LEFT) {
-		if (GetPixel(*dc, pos_x - 1, pos_y) == RGB(0, 0, 255) || GetPixel(*dc, pos_x - 1, pos_y + 32) == RGB(0, 0, 255) || GetPixel(*dc, pos_x - 1, pos_y + 16) == RGB(0, 0, 255))
+		if (GetPixel(*dc, pos_x - 1, pos_y) == RGB(0, 0, 255) || GetPixel(*dc, pos_x - 1, pos_y + 32) == RGB(0, 0, 255) || GetPixel(*dc, pos_x - 1, pos_y + 16) == RGB(0, 0, 255)) {
+			viewevent->SetEvent();
 			return true;
+		}			
 	}
 	else if (direction == VK_RIGHT) {
-		if (GetPixel(*dc, pos_x + 32 + 1, pos_y) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32 + 1, pos_y + 32) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32 + 1, pos_y + 16) == RGB(0, 0, 255))
+		if (GetPixel(*dc, pos_x + 32 + 1, pos_y) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32 + 1, pos_y + 32) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32 + 1, pos_y + 16) == RGB(0, 0, 255)) {
+			viewevent->SetEvent();
 			return true;
+		}
 	}
 	else if (direction == VK_UP) {
-		if (GetPixel(*dc, pos_x, pos_y - 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32, pos_y - 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 16, pos_y - 1) == RGB(0, 0, 255))
+		if (GetPixel(*dc, pos_x, pos_y - 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32, pos_y - 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 16, pos_y - 1) == RGB(0, 0, 255)) {
+			viewevent->SetEvent();
 			return true;
+		}
 	}
 	else if (direction == VK_DOWN) {
-		if (GetPixel(*dc, pos_x, pos_y + 32 + 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x+ 32, pos_y + 32 + 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 16, pos_y + 32 + 1) == RGB(0, 0, 255))
+		if (GetPixel(*dc, pos_x, pos_y + 32 + 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32, pos_y + 32 + 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 16, pos_y + 32 + 1) == RGB(0, 0, 255)) {
+			viewevent->SetEvent();
 			return true;
+		}
 	}
-	//viewevent->SetEvent();
+	viewevent->SetEvent();
 	return false;
 }
