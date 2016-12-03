@@ -125,6 +125,8 @@ IDB_ILL_GHOSTLEFT       BITMAP                  "res\\bitmap21.bmp"
 
 IDB_PACMANDIE           BITMAP                  "res\\bitmap23.bmp"
 
+IDB_GHOST_BLACKRECT     BITMAP                  "res\\bmp00004.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

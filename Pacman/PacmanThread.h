@@ -66,7 +66,7 @@ public:
 	GhostThread* bghostThread;
 	GhostThread* eghostThread;
 	GhostThread* gghostThread;
-	CEvent* viewevent;
+	CCriticalSection* viewevent;
 
 	int pos_x, pos_y, prev_x, prev_y;
 	CString strpoint;

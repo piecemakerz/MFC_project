@@ -30,12 +30,14 @@
 #define IDB_ILL_GHOSTRIGHT              336
 #define IDB_ILL_GHOSTLEFT               337
 #define IDB_PACMANDIE                   338
+#define IDB_BITMAP2                     339
+#define IDB_GHOST_BLACKRECT             339
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        339
+#define _APS_NEXT_RESOURCE_VALUE        340
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           310

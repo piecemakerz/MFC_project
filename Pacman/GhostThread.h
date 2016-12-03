@@ -51,9 +51,18 @@ public:
 	UINT direction_check[4];
 	UINT direction;
 	BOOL out_of_box;
-	CEvent* viewevent;
-	CEvent* pacevent;
+	CCriticalSection* viewevent;
+	CCriticalSection* pacevent;
 
+	BOOL goingdown;
+	BOOL goingup;
+	BOOL goingleft;
+	BOOL goingright;
+
+	BOOL lefttouch;
+	BOOL righttouch;
+	BOOL uptouch;
+	BOOL downtouch;
 public:
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
@@ -66,6 +75,7 @@ public:
 	void Initialize(CDC* dc);
 	void CalculateDistance();
 	UINT CrashCheck();
+	void GhostAI();
 };
 
 
