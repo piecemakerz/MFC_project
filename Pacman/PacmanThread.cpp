@@ -22,8 +22,6 @@ PacmanThread::~PacmanThread()
 
 BOOL PacmanThread::InitInstance()
 {
-	direction = VK_UP;
-
 	pacman_bitmap_up1.LoadBitmap(IDB_PACMANUP1);
 	pacman_bitmap_up1.GetBitmap(&pacman_bmpinfo_up1);
 
@@ -56,10 +54,10 @@ BOOL PacmanThread::InitInstance()
 
 	pWnd = AfxGetMainWnd();
 	hWnd= pWnd->m_hWnd;
-	up = 0; down = 0; left = 0; right = 0;
-	point = 0;
-	powermode = FALSE;
-	powertime = 0;
+	rghostThread = NULL;
+	bghostThread = NULL;
+	gghostThread = NULL;
+	eghostThread = NULL;
 	return TRUE;
 }
 
@@ -79,6 +77,16 @@ END_MESSAGE_MAP()
 
 int PacmanThread::Run()
 {
+	direction = VK_UP;
+
+	up = 0; down = 0; left = 0; right = 0;
+	point = 0;
+	powermode = FALSE;
+	powertime = 0;
+	pacman_state = 0;
+
+	pView->pacevent = &pacevent;
+
 	dc = pView->GetDC();
 
 	dcmem_up1.CreateCompatibleDC(dc);
@@ -105,12 +113,6 @@ int PacmanThread::Run()
 
 	TransparentBlt(*dc, 30 + SIZE * 3 + 6, 30 + SIZE * 3 + 6, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, RGB(0, 0, 0));
 
-	viewevent->Unlock();
-	rghostThread->pacevent = &pacevent;
-	bghostThread->pacevent = &pacevent;
-	gghostThread->pacevent = &pacevent;
-	eghostThread->pacevent = &pacevent;
-	viewevent->Lock();
 	CBrush brush(RGB(0, 0, 0));
 	dc->SelectObject(brush);
 
@@ -123,7 +125,7 @@ int PacmanThread::Run()
 	dc->SetBkColor(RGB(0, 0, 0));
 	viewevent->Unlock();
 	while (true) {
-		MovePacman(dc);
+		pacman_state = MovePacman(dc);
 		Sleep(10);
 	}
 	return 0;
@@ -277,47 +279,69 @@ int PacmanThread::MovePacman(CDC* dc)
 		}
 
 		if (point == totalpoint) {
-			SuspendThread();
+			if (powermode) {
+
+			}
 		}
 
+		if (pView->pacman_died) {
+			AfxEndThread(0, FALSE);
+		}
 		prev_x = pos_x; prev_y = pos_y;
+
 		pacevent.Lock();
-		rghostThread->pac_posx = pos_x;
-		rghostThread->pac_posy = pos_y;
-		bghostThread->pac_posx = pos_x;
-		bghostThread->pac_posy = pos_y;
-		gghostThread->pac_posx = pos_x;
-		gghostThread->pac_posy = pos_y;
-		eghostThread->pac_posx = pos_x;
-		eghostThread->pac_posy = pos_y;
+
+		if (rghostThread != NULL) {
+			rghostThread->pac_posx = pos_x;
+			rghostThread->pac_posy = pos_y;
+		}
+		if (bghostThread != NULL) {
+			bghostThread->pac_posx = pos_x;
+			bghostThread->pac_posy = pos_y;
+		}
+		if (gghostThread != NULL) {
+			gghostThread->pac_posx = pos_x;
+			gghostThread->pac_posy = pos_y;
+
+		}
+		if (eghostThread != NULL) {
+			eghostThread->pac_posx = pos_x;
+			eghostThread->pac_posy = pos_y;
+		}
 		pacevent.Unlock();
+
 		if (powermode) {
 			if (powertime < 1000)
 				powertime += 1;
 			else {
+				powertime = 0;
 				powermode = FALSE;
-				rghostThread->SuspendThread();
-				bghostThread->SuspendThread();
-				gghostThread->SuspendThread();
-				eghostThread->SuspendThread();
-
-				rghostThread->dcmem_left.SelectObject(&(rghostThread->ghost_bitmap_left));
-				bghostThread->dcmem_left.SelectObject(&(bghostThread->ghost_bitmap_left));
-				gghostThread->dcmem_left.SelectObject(&(gghostThread->ghost_bitmap_left));
-				eghostThread->dcmem_left.SelectObject(&(eghostThread->ghost_bitmap_left));
-				rghostThread->dcmem_right.SelectObject(&(rghostThread->ghost_bitmap_right));
-				bghostThread->dcmem_right.SelectObject(&(bghostThread->ghost_bitmap_right));
-				gghostThread->dcmem_right.SelectObject(&(gghostThread->ghost_bitmap_right));
-				eghostThread->dcmem_right.SelectObject(&(eghostThread->ghost_bitmap_right));
-
-				rghostThread->ResumeThread();
-				bghostThread->ResumeThread();
-				gghostThread->ResumeThread();
-				eghostThread->ResumeThread();
+				if (rghostThread != NULL) {
+					rghostThread->SuspendThread();
+					rghostThread->dcmem_left.SelectObject(&(rghostThread->ghost_bitmap_left));
+					rghostThread->dcmem_right.SelectObject(&(rghostThread->ghost_bitmap_right));
+					rghostThread->ResumeThread();
+				}
+				if (bghostThread != NULL) {
+					bghostThread->SuspendThread();
+					bghostThread->dcmem_left.SelectObject(&(bghostThread->ghost_bitmap_left));
+					bghostThread->dcmem_right.SelectObject(&(bghostThread->ghost_bitmap_right));
+					bghostThread->ResumeThread();
+				}
+				if (gghostThread != NULL) {
+					gghostThread->SuspendThread();
+					gghostThread->dcmem_left.SelectObject(&(gghostThread->ghost_bitmap_left));
+					gghostThread->dcmem_right.SelectObject(&(gghostThread->ghost_bitmap_right));
+					gghostThread->ResumeThread();
+				}
+				if (eghostThread != NULL) {
+					eghostThread->SuspendThread();
+					eghostThread->dcmem_left.SelectObject(&(eghostThread->ghost_bitmap_left));
+					eghostThread->dcmem_right.SelectObject(&(eghostThread->ghost_bitmap_right));
+					eghostThread->ResumeThread();
+				}
 			}
 		}
-
-
 	return 0;
 }
 
@@ -398,24 +422,30 @@ void PacmanThread::CheckPoint()
 					if (powermode)
 						powertime = 0;
 					else {
-						rghostThread->SuspendThread();
-						bghostThread->SuspendThread();
-						gghostThread->SuspendThread();
-						eghostThread->SuspendThread();
-
-						rghostThread->dcmem_left.SelectObject(&(rghostThread->ghostill_bitmap_left));
-						bghostThread->dcmem_left.SelectObject(&(bghostThread->ghostill_bitmap_left));
-						gghostThread->dcmem_left.SelectObject(&(gghostThread->ghostill_bitmap_left));
-						eghostThread->dcmem_left.SelectObject(&(eghostThread->ghostill_bitmap_left));
-						rghostThread->dcmem_right.SelectObject(&(rghostThread->ghostill_bitmap_right));
-						bghostThread->dcmem_right.SelectObject(&(bghostThread->ghostill_bitmap_right));
-						gghostThread->dcmem_right.SelectObject(&(gghostThread->ghostill_bitmap_right));
-						eghostThread->dcmem_right.SelectObject(&(eghostThread->ghostill_bitmap_right));
-
-						rghostThread->ResumeThread();
-						bghostThread->ResumeThread();
-						gghostThread->ResumeThread();
-						eghostThread->ResumeThread();
+						if (rghostThread != NULL) {
+							rghostThread->SuspendThread();
+							rghostThread->dcmem_left.SelectObject(&(rghostThread->ghostill_bitmap_left));
+							rghostThread->dcmem_right.SelectObject(&(rghostThread->ghostill_bitmap_right));
+							rghostThread->ResumeThread();
+						}
+						if (bghostThread != NULL) {
+							bghostThread->SuspendThread();
+							bghostThread->dcmem_left.SelectObject(&(bghostThread->ghostill_bitmap_left));
+							bghostThread->dcmem_right.SelectObject(&(bghostThread->ghostill_bitmap_right));
+							bghostThread->ResumeThread();
+						}
+						if (gghostThread != NULL) {
+							gghostThread->SuspendThread();
+							gghostThread->dcmem_left.SelectObject(&(gghostThread->ghostill_bitmap_left));
+							gghostThread->dcmem_right.SelectObject(&(gghostThread->ghostill_bitmap_right));
+							gghostThread->ResumeThread();
+						}
+						if (eghostThread != NULL) {
+							eghostThread->SuspendThread();
+							eghostThread->dcmem_left.SelectObject(&(eghostThread->ghostill_bitmap_left));
+							eghostThread->dcmem_right.SelectObject(&(eghostThread->ghostill_bitmap_right));
+							eghostThread->ResumeThread();
+						}
 						powermode = TRUE;
 					}
 

@@ -81,6 +81,24 @@ public:
 	BITMAP item_bmpinfo;
 	CDC dcmem_item;
 
+	CBitmap life;
+	BITMAP life_bmpinfo;
+	CDC dcmem_life;
+
+	BOOL pacman_died;
+	int pacman_life;
+
+	DWORD pacExitCode;
+	DWORD rgExitCode;
+	DWORD bgExitCode;
+	DWORD ggExitCode;
+	DWORD egExitCode;
+
+	int ghostcreate_sequence;
+
+	CCriticalSection* pacevent;
+
+	int timer_counter;
 // 작업입니다.
 public:
 
@@ -112,9 +130,11 @@ public:
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	BOOL SetPoint(CDC* dc);
-	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
-	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+//	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+//	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 //	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	bool SetPacmanLife(CDC* dc);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
 
 #ifndef _DEBUG  // PacmanView.cpp의 디버그 버전

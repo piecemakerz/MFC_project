@@ -55,6 +55,7 @@ BOOL GhostThread::InitInstance()
 	righttouch = FALSE;
 	uptouch = FALSE;
 	downtouch = FALSE;
+	ghost_state = 0;
 	return TRUE;
 }
 
@@ -103,7 +104,7 @@ int GhostThread::Run()
 
 	while (true) {
 		//viewevent->Lock();
-		MoveGhost(dc);
+		ghost_state = MoveGhost(dc);
 		//viewevent->Unlock();
 		Sleep(10);
 	}
@@ -204,13 +205,15 @@ int GhostThread::MoveGhost(CDC* dc)
 
 		rgn.SetRect(pos_x + 3, pos_y+2, pos_x + 29, pos_y + 29);
 		rect.SetRect(pac_posx+3, pac_posy+3, pac_posx+29, pac_posy+29);
-		
-		if (IntersectRect(touch,rgn, rect))
+		if (IntersectRect(touch,rgn, rect)|| pView->pacman_died)
 		{
-			pacThread->SuspendThread();
-			SuspendThread();
+			pView->pacman_died = TRUE;
+			pView->drawed = FALSE;
+			if(IntersectRect(touch, rgn, rect))
+				pView->Invalidate();
+			AfxEndThread(0, FALSE);
+			return 1;
 		}
-
 		prev_x = pos_x;
 		prev_y = pos_y;
 		viewevent->Unlock();
@@ -225,34 +228,30 @@ void GhostThread::Initialize(CDC* dc)
 	if (color == 0) {
 		ghost_bitmap_left.LoadBitmap(IDB_RED_GHOSTLEFT);
 		ghost_bitmap_right.LoadBitmap(IDB_RED_GHOSTRIGHT);
-		Sleep(5000);
-
 	}
 	else if (color == 1) {
 		ghost_bitmap_left.LoadBitmap(IDB_BLUE_GHOSTLEFT);
 		ghost_bitmap_right.LoadBitmap(IDB_BLUE_GHOSTRIGHT);
-		Sleep(10000);
 	}
 	else if (color == 2) {
 		ghost_bitmap_left.LoadBitmap(IDB_GREEN_GHOSTLEFT);
 		ghost_bitmap_right.LoadBitmap(IDB_GREEN_GHOSTRIGHT);
-		Sleep(15000);
-
 	}
 	else if (color == 3) {
 		ghost_bitmap_left.LoadBitmap(IDB_EMERALD_GHOSTLEFT);
 		ghost_bitmap_right.LoadBitmap(IDB_EMERALD_GHOSTRIGHT);
-		Sleep(20000);
 	}
 	viewevent->Lock();
 	ghost_bitmap_left.GetBitmap(&ghost_bmpinfo_left);
 	ghost_bitmap_right.GetBitmap(&ghost_bmpinfo_right);
 	dcmem_left.SelectObject(&ghost_bitmap_left);
 	dcmem_right.SelectObject(&ghost_bitmap_right);
+
 	if (first_start == TRUE) {
 		TransparentBlt(*dc, 30 + SIZE * 8 + 5, 30 + SIZE * 9 + 5, ghost_bmpinfo_left.bmWidth, ghost_bmpinfo_left.bmHeight, dcmem_left, 0, 0, ghost_bmpinfo_left.bmWidth, ghost_bmpinfo_left.bmHeight, RGB(0,0,0));
 		first_start = FALSE;
 	}
+
 	viewevent->Unlock();
 }
 

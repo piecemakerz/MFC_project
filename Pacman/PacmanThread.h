@@ -14,6 +14,7 @@ class CPacmanView;
 class GhostThread;
 class PacmanThread : public CWinThread
 {
+	friend class CPacmanView;
 	DECLARE_DYNCREATE(PacmanThread)
 
 protected:
@@ -81,6 +82,7 @@ public:
 	HWND hWnd;
 	BOOL powermode;
 	int powertime;
+	int pacman_state;
 public:
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();

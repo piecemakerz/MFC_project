@@ -13,6 +13,7 @@ class PacmanThread;
 
 class GhostThread : public CWinThread
 {
+	friend class CPacmanView;
 	DECLARE_DYNCREATE(GhostThread)
 
 protected:
@@ -73,6 +74,8 @@ public:
 	int point_consumed; // 1 = left, 2 = right, 3 = up, 4 = down
 	int point_x;
 	int point_y;
+	
+	int ghost_state;
 
 public:
 	virtual BOOL InitInstance();
