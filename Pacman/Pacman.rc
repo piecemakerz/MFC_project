@@ -127,6 +127,8 @@ IDB_PACMANDIE           BITMAP                  "res\\bitmap23.bmp"
 
 IDB_GHOST_BLACKRECT     BITMAP                  "res\\bmp00004.bmp"
 
+IDB_ITEM                BITMAP                  "res\\bitmap3.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

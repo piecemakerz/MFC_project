@@ -6,7 +6,8 @@
 #include "PacmanView.h"
 #include "PacmanThread.h"
 #define SIZE 42
-
+#define M 19
+#define N 17
 class CPacmanView;
 class PacmanThread;
 
@@ -29,6 +30,11 @@ public:
 	CBitmap ghost_bitmap_right;
 	BITMAP ghost_bmpinfo_right;
 
+	CBitmap ghostill_bitmap_left;
+	BITMAP ghostill_bmpinfo_left;
+	CBitmap ghostill_bitmap_right;
+	BITMAP ghostill_bmpinfo_right;
+
 	CBitmap black_rect;
 	BITMAP black_rect_bminfo;
 	CBitmap small_black_rect;
@@ -38,6 +44,7 @@ public:
 	CDC dcmem_right;
 	CDC dcmem_rect;
 	CDC dcmem_smallrect;
+
 
 	int left;
 	int color; // 0 = Red, 1 = Blue, 2 = Green, 3 = Emerald
@@ -63,6 +70,10 @@ public:
 	BOOL righttouch;
 	BOOL uptouch;
 	BOOL downtouch;
+	int point_consumed; // 1 = left, 2 = right, 3 = up, 4 = down
+	int point_x;
+	int point_y;
+
 public:
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();

@@ -31,6 +31,9 @@ BEGIN_MESSAGE_MAP(CPacmanView, CView)
 //	ON_WM_CHAR()
 ON_WM_KEYDOWN()
 ON_WM_ERASEBKGND()
+ON_WM_LBUTTONDOWN()
+ON_WM_MOUSEMOVE()
+//ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 // CPacmanView 생성/소멸
@@ -44,7 +47,6 @@ CPacmanView::CPacmanView()
 		for (int j = 0; j < N; j++) {
 			if (Map[i][j] <= 8) {
 				MapPoint[i][j] = 1;
-				totalpoint++;
 			}
 		}
 	MapPoint[3][8] = 0;
@@ -58,29 +60,54 @@ CPacmanView::CPacmanView()
 	MapPoint[17][12] = 0;
 	MapPoint[8][0] = 0;
 	MapPoint[8][16] = 0;
-	totalpoint -= 11;
-	
+	MapPoint[13][1] = 0;
+	MapPoint[13][15] = 0;
+	MapPoint[14][1] = 0;
+	MapPoint[14][2] = 0;
+	MapPoint[15][1] = 0;
+	MapPoint[15][2] = 0;
+	MapPoint[14][14] = 0;
+	MapPoint[14][15] = 0;
+	MapPoint[15][14] = 0;
+	MapPoint[15][15] = 0;
+
 	for (int i = 5; i <= 7; i++) {
 		for (int j = 0; j <= 2; j++){
 			MapPoint[i][j] = 0;
-			totalpoint--;
 			}
 		for (int j = 14; j <= 16; j++) {
 			MapPoint[i][j] = 0;
-			totalpoint--;
 		}
 	}
 	for (int i = 9; i <= 11; i++) {
 		for (int j = 0; j <= 2; j++) {
 			MapPoint[i][j] = 0;
-			totalpoint--;
 		}
 		for (int j = 14; j <= 16; j++) {
 			MapPoint[i][j] = 0;
-			totalpoint--;
 		}
 	}
 	
+
+	for (int i = 7; i <= 9; i++) {
+		for (int j = 6; j <= 10; j++) {
+			MapPoint[i][j] = 0;
+		}
+	}
+	MapPoint[2][0] = 2;
+	MapPoint[2][16] = 2;
+	MapPoint[16][0] = 2;
+	MapPoint[16][16] = 2;
+	
+	for (int i = 0; i < M; i++)
+		for (int j = 0; j < N; j++) {
+			if (MapPoint[i][j] == 1) {
+				totalpoint++;
+			}
+		}
+	item.LoadBitmap(IDB_ITEM);
+	item.GetBitmap(&item_bmpinfo);
+
 	Thread_Suspended = false;
 	drawed = false;
 }
@@ -102,50 +129,61 @@ void CPacmanView::OnDraw(CDC* pDC)
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
+	viewevent.Unlock();
 	if (!drawed) {
 		GetWindowRect(&rect);
 		ScreenToClient(rect);
+
+		dcmem_item.CreateCompatibleDC(pDC);
+		dcmem_item.SelectObject(&item);
+
 		SetMap(pDC);
+		SetPoint(pDC);
 
 		pacThread = (PacmanThread*)(AfxBeginThread(RUNTIME_CLASS(PacmanThread), THREAD_PRIORITY_ABOVE_NORMAL, 0, CREATE_SUSPENDED, NULL));
 		pacThread->viewevent = &viewevent;
-		viewevent.Unlock();
-
+		pacThread->pView = this;
+		pacThread->totalpoint = totalpoint;
 		rghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
 		rghostThread->color = 0;
 		pacThread->rghostThread = rghostThread;
 		rghostThread->pacThread = pacThread;
 		rghostThread->viewevent = &viewevent;
-
+		rghostThread->pView = this;
 		
 		bghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
 		bghostThread->color = 1;
 		pacThread->bghostThread = bghostThread;
 		bghostThread->pacThread = pacThread;
 		bghostThread->viewevent = &viewevent;
+		bghostThread->pView = this;
 
 		gghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
 		gghostThread->color = 2;
 		pacThread->gghostThread = gghostThread;
 		gghostThread->pacThread = pacThread;
 		gghostThread->viewevent = &viewevent;
+		gghostThread->pView = this;
 
 		eghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
 		eghostThread->color = 3;
 		pacThread->eghostThread = eghostThread;
 		eghostThread->pacThread = pacThread;
 		eghostThread->viewevent = &viewevent;
-		
+		eghostThread->pView = this;
 
 		pacThread->ResumeThread();
 		rghostThread->ResumeThread();
-		//bghostThread->ResumeThread();
-		//gghostThread->ResumeThread();
-		//eghostThread->ResumeThread();
+		bghostThread->ResumeThread();
+		gghostThread->ResumeThread();
+		eghostThread->ResumeThread();
 		
 		drawed = true;
 		
 	}
+	CString msg;
+	msg.Format(_T("%d, %d"), pDoc->m_x, pDoc->m_y);
+	pDC->TextOut(800, 230, msg);
 }
 
 
@@ -273,15 +311,10 @@ BOOL CPacmanView::SetMap(CDC* dc)
 			else if (Map[i][j] == 15) {
 				dc->Rectangle(j * SIZE + 30, i * SIZE + 30, j * SIZE + SIZE + 30, i * SIZE + SIZE + 30);
 			}
-			if (MapPoint[i][j] == 1) {
-				dc->SelectObject(pointbrush);
-				dc->SelectStockObject(NULL_PEN);
-				dc->Ellipse(j * SIZE + 30 + (SIZE/2 - 4), i * SIZE + 30 + (SIZE/2 - 4), j * SIZE + 30 + (SIZE/2 + 4), i * SIZE + 30 + (SIZE/2 + 4));
-				dc->SelectObject(brush);
-				dc->SelectObject(pen);
-			}
 		}
+		
 	}
+	dc->MoveTo(0, 0);
 	return 0;
 }
 
@@ -305,17 +338,17 @@ void CPacmanView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		if (Thread_Suspended == 1) {
 			pacThread->ResumeThread();
 			rghostThread->ResumeThread();
-			//bghostThread->ResumeThread();
-			//gghostThread->ResumeThread();
-			//eghostThread->ResumeThread();
+			bghostThread->ResumeThread();
+			gghostThread->ResumeThread();
+			eghostThread->ResumeThread();
 			Thread_Suspended = 0;
 		}
 		else {
 			pacThread->SuspendThread();
 			rghostThread->SuspendThread();
-			//bghostThread->SuspendThread();
-			//gghostThread->SuspendThread();
-			//eghostThread->SuspendThread();
+			bghostThread->SuspendThread();
+			gghostThread->SuspendThread();
+			eghostThread->SuspendThread();
 			Thread_Suspended = 1;
 		}
 	}
@@ -329,3 +362,52 @@ BOOL CPacmanView::OnEraseBkgnd(CDC* pDC)
 	return TRUE;
 	// return CView::OnEraseBkgnd(pDC);
 }
+
+
+BOOL CPacmanView::SetPoint(CDC* dc)
+{
+	//viewevent.Lock();
+	CBrush pointbrush(RGB(255, 144, 0));
+	dc->SelectObject(pointbrush);
+	dc->SelectStockObject(NULL_PEN);
+	for (int i = 0; i < M; i++) {
+		for (int j = 0; j < N; j++) {
+			if (MapPoint[i][j] == 1) {
+				dc->Ellipse(j * SIZE + 30 + (SIZE / 2 - 4), i * SIZE + 30 + (SIZE / 2 - 4), j * SIZE + 30 + (SIZE / 2 + 4), i * SIZE + 30 + (SIZE / 2 + 4)); // 지름 8인 원
+			}
+			else if(MapPoint[i][j] == 0){
+				dc->SelectStockObject(BLACK_BRUSH);
+				dc->Ellipse(j * SIZE + 30 + (SIZE / 2 - 6), i * SIZE + 30 + (SIZE / 2 - 6), j * SIZE + 30 + (SIZE / 2 + 6), i * SIZE + 30 + (SIZE / 2 + 6));
+				dc->SelectObject(pointbrush);
+			}
+			else if (MapPoint[i][j] == 2) {
+				dc->BitBlt(j*SIZE + 30 + 15, i*SIZE + 30 + 15, item_bmpinfo.bmWidth, item_bmpinfo.bmHeight, &dcmem_item, 0, 0, SRCCOPY);
+			}
+		}
+	}
+	//viewevent.Unlock();
+	return 0;
+}
+
+
+void CPacmanView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	Invalidate();
+	CView::OnLButtonDown(nFlags, point);
+}
+
+
+void CPacmanView::OnMouseMove(UINT nFlags, CPoint point)
+{
+	GetDocument()->m_x = point.x;
+	GetDocument()->m_y = point.y;
+	CView::OnMouseMove(nFlags, point);
+}
+
+
+//void CPacmanView::OnTimer(UINT_PTR nIDEvent)
+//{
+//	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+//
+//	CView::OnTimer(nIDEvent);
+//}

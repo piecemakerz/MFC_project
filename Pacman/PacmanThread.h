@@ -7,6 +7,9 @@
 #include "GhostThread.h"
 
 #define SIZE 42
+#define M 19
+#define N 17
+
 class CPacmanView;
 class GhostThread;
 class PacmanThread : public CWinThread
@@ -41,6 +44,8 @@ public:
 	BITMAP black_rect_bminfo;
 	CBitmap small_black_rect;
 	BITMAP small_black_rect_bminfo;
+	CBitmap Item;
+	BITMAP item_bminfo;
 
 	CDC dcmem_up1;
 	CDC dcmem_up2;
@@ -52,6 +57,7 @@ public:
 	CDC dcmem_right2;
 	CDC dcmem_rect;
 	CDC dcmem_smallrect;
+	CDC dcmem_item;
 
 	int up;
 	int down;
@@ -70,6 +76,11 @@ public:
 
 	int pos_x, pos_y, prev_x, prev_y;
 	CString strpoint;
+	int totalpoint;
+	CWnd *pWnd;
+	HWND hWnd;
+	BOOL powermode;
+	int powertime;
 public:
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
@@ -80,6 +91,7 @@ public:
 	virtual int Run();
 	int MovePacman(CDC* dc);
 	bool CrashCheck(int pos_x, int pos_y);
+	void CheckPoint();
 };
 
 

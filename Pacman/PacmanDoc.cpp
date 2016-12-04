@@ -29,6 +29,8 @@ END_MESSAGE_MAP()
 
 CPacmanDoc::CPacmanDoc()
 {
+	m_x = 0;
+	m_y = 0;
 	// TODO: 여기에 일회성 생성 코드를 추가합니다.
 
 }

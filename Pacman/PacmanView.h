@@ -75,6 +75,12 @@ public:
 	BOOL Thread_Suspended;
 	int totalpoint;
 	BOOL drawed;
+	CPoint mypoint;
+	
+	CBitmap item;
+	BITMAP item_bmpinfo;
+	CDC dcmem_item;
+
 // 작업입니다.
 public:
 
@@ -105,6 +111,10 @@ public:
 //	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	BOOL SetPoint(CDC* dc);
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+//	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
 
 #ifndef _DEBUG  // PacmanView.cpp의 디버그 버전
