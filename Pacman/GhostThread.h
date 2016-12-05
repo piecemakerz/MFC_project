@@ -78,6 +78,8 @@ public:
 	int ghost_state;
 	BOOL pacman_powermode;
 	BOOL pacman_died;
+	BOOL ghost_ill;
+	BOOL finished;
 public:
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();

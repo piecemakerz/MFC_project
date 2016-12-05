@@ -58,6 +58,7 @@ BOOL GhostThread::InitInstance()
 	ghost_state = 0;
 	pacman_powermode = FALSE;
 	pacman_died = FALSE;
+	ghost_ill = FALSE;
 	return TRUE;
 }
 
@@ -119,6 +120,7 @@ int GhostThread::Run()
 
 int GhostThread::MoveGhost(CDC* dc)
 {
+	finished = FALSE;
 	CRect rgn;
 	CRect rect;
 	CRect touch;
@@ -128,6 +130,14 @@ int GhostThread::MoveGhost(CDC* dc)
 
 	viewevent->Lock();
 	pacevent->Lock();
+	if (ghost_ill) {
+		dcmem_left.SelectObject(&ghostill_bitmap_left);
+		dcmem_right.SelectObject(&ghostill_bitmap_right);
+	}
+	else {
+		dcmem_left.SelectObject(&ghost_bitmap_left);
+		dcmem_right.SelectObject(&ghost_bitmap_right);
+	}
 	if (out_of_box == FALSE) {
 		pos_y -= 1;
 		if (pos_y <= 30 + SIZE * 6 + 5) {
@@ -209,6 +219,7 @@ int GhostThread::MoveGhost(CDC* dc)
 
 	}
 	pacevent->Unlock();
+	viewevent->Unlock();
 
 	pacevent->Lock();
 	rgn.SetRect(pos_x + 3, pos_y+2, pos_x + 29, pos_y + 29);
@@ -218,22 +229,26 @@ int GhostThread::MoveGhost(CDC* dc)
 	CString state;
 	state.Format(_T("%d"), pacman_died);
 	dc->TextOut(800, 400 + (color * 20), state);
-
+	viewevent->Lock();
+	pacevent->Lock();
 	if (IntersectRect(touch,rgn, rect) || pacman_died)
 	{
-		pacevent->Lock();
+		
 		if (IntersectRect(touch, rgn, rect))
 			{
 			if (pacman_powermode) {
+				pacThread->SuspendThread();
 				pacThread->point += 10;
+				pacThread->ResumeThread();
 				pacevent->Unlock();
 				viewevent->Unlock();
 				ResetGhost(dc, 5000, 5000, 5000, 5000);
 				return 0;
 			}
 			else {
+				pacThread->SuspendThread();
 				pacThread->pacman_died = TRUE;
-				pacevent->Unlock();
+				pacThread->ResumeThread();
 			}
 		}
 		else if (pacman_died) {
@@ -245,6 +260,7 @@ int GhostThread::MoveGhost(CDC* dc)
 	}
 	prev_x = pos_x;
 	prev_y = pos_y;
+	pacevent->Unlock();
 	viewevent->Unlock();
 
 	return 0;
