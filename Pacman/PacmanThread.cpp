@@ -58,6 +58,7 @@ BOOL PacmanThread::InitInstance()
 	bghostThread = NULL;
 	gghostThread = NULL;
 	eghostThread = NULL;
+	pacman_died = FALSE;
 	return TRUE;
 }
 
@@ -83,12 +84,13 @@ int PacmanThread::Run()
 	point = 0;
 	powermode = FALSE;
 	powertime = 0;
-	pacman_state = 0;
 
 	pView->pacevent = &pacevent;
 
-	dc = pView->GetDC();
+	SuspendThread();
 
+	viewevent->Lock();
+	dc = pView->GetDC();
 	dcmem_up1.CreateCompatibleDC(dc);
 	dcmem_up2.CreateCompatibleDC(dc);
 	dcmem_down1.CreateCompatibleDC(dc);
@@ -111,6 +113,7 @@ int PacmanThread::Run()
 	dcmem_rect.SelectObject(&black_rect);
 	dcmem_smallrect.SelectObject(&small_black_rect);
 
+	
 	TransparentBlt(*dc, 30 + SIZE * 3 + 6, 30 + SIZE * 3 + 6, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, RGB(0, 0, 0));
 
 	CBrush brush(RGB(0, 0, 0));
@@ -123,9 +126,11 @@ int PacmanThread::Run()
 
 	dc->SetTextColor(RGB(255, 255, 255));
 	dc->SetBkColor(RGB(0, 0, 0));
+
 	viewevent->Unlock();
+
 	while (true) {
-		pacman_state = MovePacman(dc);
+		MovePacman(dc);
 		Sleep(10);
 	}
 	return 0;
@@ -135,250 +140,295 @@ int PacmanThread::Run()
 int PacmanThread::MovePacman(CDC* dc)
 {
 	CRect rect;
-		viewevent->Lock();
-		strpoint.Format(_T("point : %d"), point);
-		dc->TextOut(800, 130, strpoint);
+	viewevent->Lock();
+	strpoint.Format(_T("point : %d"), point);
+	dc->TextOut(800, 130, strpoint);
+	strpoint.Format(_T("%d"), 1);
+	dc->TextOut(800, 500, strpoint);
+	pacevent.Lock();
+	if (((prev_x >= 28 && prev_x <= 40) && (prev_y >= 30 + SIZE * 8 - 20 && prev_y <= 30+ SIZE * 8 + 20)) && direction == VK_LEFT) // 왼쪽 통로
+		pos_x = 30 + SIZE * 16;
 
-		if (((prev_x >= 28 && prev_x <= 40) && (prev_y >= 30 + SIZE * 8 - 20 && prev_y <= 30+ SIZE * 8 + 20)) && direction == VK_LEFT) // 왼쪽 통로
-			pos_x = 30 + SIZE * 16;
+	else if (((prev_x >= 30 + SIZE * 16 - 3 && prev_x<= 30 + SIZE * 16 + 3 )&& (prev_y >= 30 + SIZE * 8 - 20 && prev_y <= 30 + SIZE * 8 + 20)) && direction == VK_RIGHT) // 오른쪽 통로
+		pos_x = 30;
+	pacevent.Unlock();
+	viewevent->Unlock();
 
-		else if (((prev_x >= 30 + SIZE * 16 - 3 && prev_x<= 30 + SIZE * 16 + 3 )&& (prev_y >= 30 + SIZE * 8 - 20 && prev_y <= 30 + SIZE * 8 + 20)) && direction == VK_RIGHT) // 오른쪽 통로
-			pos_x = 30;
-		viewevent->Unlock();
-		switch (direction) {
+	switch (direction) {
 			
-		case VK_LEFT:
-			pos_x -= i;
-			if (CrashCheck(pos_x, pos_y))
-				pos_x += i;
-
-			// dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
-			
-			/*if (GetPixel(*dc, pos_x - 1, pos_y + 15) == RGB(255, 144, 0) || GetPixel(*dc, pos_x - 1, pos_y + 17) == RGB(255, 144, 0)) {
-				point++;
-				// dc->Rectangle(pos_x - 1 - 6, pos_y + 13, pos_x - 1, pos_y + 19);
-				dc->BitBlt(pos_x - 1 - 8, pos_y + 13, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
-			}
-			*/
-			
-			viewevent->Lock();
-			if (left<=15) {
-				left += 1;
-				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
-				TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_left1.bmWidth, pacman_bmpinfo_left1.bmHeight, dcmem_left1, 0, 0, pacman_bmpinfo_left1.bmWidth, pacman_bmpinfo_left1.bmHeight, RGB(0,0,0));
-			}
-
-			else {
-				if (left < 30)
-					left += 1;
-				if (left >= 30)
-					left = 0;
-				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
-				TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_left2.bmWidth, pacman_bmpinfo_left2.bmHeight, dcmem_left2, 0, 0, pacman_bmpinfo_left2.bmWidth, pacman_bmpinfo_left2.bmHeight, RGB(0,0,0));
-			}
-			viewevent->Unlock();
-			CheckPoint();
-			break;
-
-		case VK_RIGHT:
+	case VK_LEFT:
+		pacevent.Lock();
+		pos_x -= i;
+		pacevent.Unlock();
+		if (CrashCheck(pos_x, pos_y)) {
+			pacevent.Lock();
 			pos_x += i;
-			if (CrashCheck(pos_x, pos_y))
-				pos_x -= i;
-			// dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
+			pacevent.Unlock();
+		}
+
+		// dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
 			
-			viewevent->Lock();
-			/*if (GetPixel(*dc, pos_x + 32 + 1, pos_y + 15) == RGB(255, 144, 0) || GetPixel(*dc, pos_x + 32 + 1, pos_y + 17) == RGB(255, 144, 0)) {
-				point++;
-				// dc->Rectangle(pos_x + 32 + 1 + 6, pos_y + 13, pos_x + 32 + 1, pos_y + 19);
-				dc->BitBlt(pos_x +32 + 1, pos_y + 13, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
-			}
+		/*if (GetPixel(*dc, pos_x - 1, pos_y + 15) == RGB(255, 144, 0) || GetPixel(*dc, pos_x - 1, pos_y + 17) == RGB(255, 144, 0)) {
+			point++;
+			// dc->Rectangle(pos_x - 1 - 6, pos_y + 13, pos_x - 1, pos_y + 19);
+			dc->BitBlt(pos_x - 1 - 8, pos_y + 13, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
+		}
+		*/
+			
+		viewevent->Lock();
+		pacevent.Lock();
+		if (left<=15) {
+			left += 1;
+			dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
+			TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_left1.bmWidth, pacman_bmpinfo_left1.bmHeight, dcmem_left1, 0, 0, pacman_bmpinfo_left1.bmWidth, pacman_bmpinfo_left1.bmHeight, RGB(0,0,0));
+		}
+
+		else {
+			if (left < 30)
+				left += 1;
+			if (left >= 30)
+				left = 0;
+			dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
+			TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_left2.bmWidth, pacman_bmpinfo_left2.bmHeight, dcmem_left2, 0, 0, pacman_bmpinfo_left2.bmWidth, pacman_bmpinfo_left2.bmHeight, RGB(0,0,0));
+		}
+		viewevent->Unlock();
+		pacevent.Unlock();
+		CheckPoint();
+		break;
+
+	case VK_RIGHT:
+		pacevent.Lock();
+		pos_x += i;
+		pacevent.Unlock();
+		if (CrashCheck(pos_x, pos_y)) {
+			pacevent.Lock();
+			pos_x -= i;
+			pacevent.Unlock();
+		}
+		// dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
+			
+		viewevent->Lock();
+		pacevent.Lock();
+		/*if (GetPixel(*dc, pos_x + 32 + 1, pos_y + 15) == RGB(255, 144, 0) || GetPixel(*dc, pos_x + 32 + 1, pos_y + 17) == RGB(255, 144, 0)) {
+			point++;
+			// dc->Rectangle(pos_x + 32 + 1 + 6, pos_y + 13, pos_x + 32 + 1, pos_y + 19);
+			dc->BitBlt(pos_x +32 + 1, pos_y + 13, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
+		}
 			*/
-			if (right <= 15) {
+		if (right <= 15) {
+			right += 1;
+			dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
+			TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_right1.bmWidth, pacman_bmpinfo_right1.bmHeight, dcmem_right1, 0, 0, pacman_bmpinfo_right1.bmWidth, pacman_bmpinfo_right1.bmHeight, RGB(0,0,0));
+		}
+
+		else {
+			if (right < 30)
 				right += 1;
-				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
-				TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_right1.bmWidth, pacman_bmpinfo_right1.bmHeight, dcmem_right1, 0, 0, pacman_bmpinfo_right1.bmWidth, pacman_bmpinfo_right1.bmHeight, RGB(0,0,0));
-			}
+			if (right >= 30)
+				right = 0;
+			dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
+			TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_right2.bmWidth, pacman_bmpinfo_right2.bmHeight, dcmem_right2, 0, 0, pacman_bmpinfo_right2.bmWidth, pacman_bmpinfo_right2.bmHeight, RGB(0,0,0));
+		}
+		viewevent->Unlock();
+		pacevent.Unlock();
+		CheckPoint();
+		break;
 
-			else {
-				if (right < 30)
-					right += 1;
-				if (right >= 30)
-					right = 0;
-				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
-				TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_right2.bmWidth, pacman_bmpinfo_right2.bmHeight, dcmem_right2, 0, 0, pacman_bmpinfo_right2.bmWidth, pacman_bmpinfo_right2.bmHeight, RGB(0,0,0));
-			}
-			viewevent->Unlock();
-			CheckPoint();
-			break;
-
-		case VK_UP:
-			pos_y -= i;
-			if (CrashCheck(pos_x, pos_y))
-				pos_y += i;
-
-			// dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
-			
-			viewevent->Lock();
-			/*if (GetPixel(*dc, pos_x + 15, pos_y - 1) == RGB(255, 144, 0) || GetPixel(*dc, pos_x + 17, pos_y - 1) == RGB(255, 144, 0)) {
-				point++;
-				// dc->Rectangle(pos_x + 13, pos_y - 1 - 6, pos_x + 13 + 6, pos_y -1);
-				dc->BitBlt(pos_x + 13, pos_y - 1 - 8, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
-			}
-			*/
-			if (up <= 15) {
-				up += 1;
-				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
-				TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, RGB(0,0,0));
-			}
-
-			else {
-				if (up < 30)
-					up += 1;
-				if (up >= 30)
-					up = 0;
-				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
-				TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_up2.bmWidth, pacman_bmpinfo_up2.bmHeight, dcmem_up2, 0, 0, pacman_bmpinfo_up2.bmWidth, pacman_bmpinfo_up2.bmHeight, RGB(0,0,0));
-			}
-			viewevent->Unlock();
-			CheckPoint();
-			break;
-
-		case VK_DOWN:
+	case VK_UP:
+		pacevent.Lock();
+		pos_y -= i;
+		pacevent.Unlock();
+		if (CrashCheck(pos_x, pos_y)) {
+			pacevent.Lock();
 			pos_y += i;
-			if (CrashCheck(pos_x, pos_y))
-				pos_y -= i;
+			pacevent.Unlock();
+		}
 
-			// dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
+		// dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
 			
-			viewevent->Lock();
-			/*if (GetPixel(*dc, pos_x + 15, pos_y + 32 + 1) == RGB(255, 144, 0) || GetPixel(*dc, pos_x + 17, pos_y + 32 + 1) == RGB(255, 144, 0)) {
-				point++;
-				// dc->Rectangle(pos_x + 13, pos_y + 32 + 1 + 6, pos_x + 13 + 6, pos_y + 32 + 1);
-				dc->BitBlt(pos_x + 13, pos_y + 32 + 1, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
-			}
-			*/
-			if (down < 15) {
+		viewevent->Lock();
+		pacevent.Lock();
+		/*if (GetPixel(*dc, pos_x + 15, pos_y - 1) == RGB(255, 144, 0) || GetPixel(*dc, pos_x + 17, pos_y - 1) == RGB(255, 144, 0)) {
+			point++;
+			// dc->Rectangle(pos_x + 13, pos_y - 1 - 6, pos_x + 13 + 6, pos_y -1);
+			dc->BitBlt(pos_x + 13, pos_y - 1 - 8, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
+		}
+		*/
+		if (up <= 15) {
+			up += 1;
+			dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
+			TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, RGB(0,0,0));
+		}
+
+		else {
+			if (up < 30)
+				up += 1;
+			if (up >= 30)
+				up = 0;
+			dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
+			TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_up2.bmWidth, pacman_bmpinfo_up2.bmHeight, dcmem_up2, 0, 0, pacman_bmpinfo_up2.bmWidth, pacman_bmpinfo_up2.bmHeight, RGB(0,0,0));
+		}
+		viewevent->Unlock();
+		pacevent.Unlock();
+		CheckPoint();
+		break;
+
+	case VK_DOWN:
+		pacevent.Lock();
+		pos_y += i;
+		pacevent.Unlock();
+		if (CrashCheck(pos_x, pos_y)) {
+			pacevent.Lock();
+			pos_y -= i;
+			pacevent.Unlock();
+		}
+
+		// dc->Rectangle(prev_x + 3, prev_y + 3, prev_x + 32 - 3, prev_y + 32 - 3);
+			
+		viewevent->Lock();
+		pacevent.Lock();
+		/*if (GetPixel(*dc, pos_x + 15, pos_y + 32 + 1) == RGB(255, 144, 0) || GetPixel(*dc, pos_x + 17, pos_y + 32 + 1) == RGB(255, 144, 0)) {
+			point++;
+			// dc->Rectangle(pos_x + 13, pos_y + 32 + 1 + 6, pos_x + 13 + 6, pos_y + 32 + 1);
+			dc->BitBlt(pos_x + 13, pos_y + 32 + 1, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
+		}
+		*/
+		if (down < 15) {
+			down += 1;
+			dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
+			TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_down1.bmWidth, pacman_bmpinfo_down1.bmHeight, dcmem_down1, 0, 0, pacman_bmpinfo_down1.bmWidth, pacman_bmpinfo_down1.bmHeight, RGB(0,0,0));
+
+		}
+		else {
+			if (down < 30)
 				down += 1;
-				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
-				TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_down1.bmWidth, pacman_bmpinfo_down1.bmHeight, dcmem_down1, 0, 0, pacman_bmpinfo_down1.bmWidth, pacman_bmpinfo_down1.bmHeight, RGB(0,0,0));
-
-			}
-			else {
-				if (down < 30)
-					down += 1;
-				if(down >= 30)
-					down = 0;
-				dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
-				TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_down2.bmWidth, pacman_bmpinfo_down2.bmHeight, dcmem_down2, 0, 0, pacman_bmpinfo_down2.bmWidth, pacman_bmpinfo_down2.bmHeight,RGB(0,0,0));
+			if(down >= 30)
+				down = 0;
+			dc->BitBlt(prev_x + 3, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
+			TransparentBlt(*dc, pos_x, pos_y, pacman_bmpinfo_down2.bmWidth, pacman_bmpinfo_down2.bmHeight, dcmem_down2, 0, 0, pacman_bmpinfo_down2.bmWidth, pacman_bmpinfo_down2.bmHeight,RGB(0,0,0));
 	
-			}
+		}
 			
-			viewevent->Unlock();
-			CheckPoint();
-			break;
-		}
+		viewevent->Unlock();
+		pacevent.Unlock();
+		CheckPoint();
+		break;
+	}
 
-		if (point == totalpoint) {
-			if (powermode) {
-
-			}
-		}
-
-		if (pView->pacman_died) {
-			AfxEndThread(0, FALSE);
-		}
-		prev_x = pos_x; prev_y = pos_y;
-
+	if (point == totalpoint) {
+		rghostThread->SuspendThread();
+		bghostThread->SuspendThread();
+		gghostThread->SuspendThread();
+		eghostThread->SuspendThread();
+		SuspendThread();
+	}
+	CString str;
+	str.Format(_T("%d"), pacman_died);
+	dc->TextOut(800, 300, str);
+	if (pacman_died) {
 		pacevent.Lock();
 
-		if (rghostThread != NULL) {
-			rghostThread->pac_posx = pos_x;
-			rghostThread->pac_posy = pos_y;
-		}
-		if (bghostThread != NULL) {
-			bghostThread->pac_posx = pos_x;
-			bghostThread->pac_posy = pos_y;
-		}
-		if (gghostThread != NULL) {
-			gghostThread->pac_posx = pos_x;
-			gghostThread->pac_posy = pos_y;
+		rghostThread->pacman_died = TRUE;
+		bghostThread->pacman_died = TRUE;
+		gghostThread->pacman_died = TRUE;
+		eghostThread->pacman_died = TRUE;
 
-		}
-		if (eghostThread != NULL) {
-			eghostThread->pac_posx = pos_x;
-			eghostThread->pac_posy = pos_y;
-		}
 		pacevent.Unlock();
 
-		if (powermode) {
-			if (powertime < 1000)
-				powertime += 1;
-			else {
-				powertime = 0;
-				powermode = FALSE;
-				if (rghostThread != NULL) {
-					rghostThread->SuspendThread();
-					rghostThread->dcmem_left.SelectObject(&(rghostThread->ghost_bitmap_left));
-					rghostThread->dcmem_right.SelectObject(&(rghostThread->ghost_bitmap_right));
-					rghostThread->ResumeThread();
-				}
-				if (bghostThread != NULL) {
-					bghostThread->SuspendThread();
-					bghostThread->dcmem_left.SelectObject(&(bghostThread->ghost_bitmap_left));
-					bghostThread->dcmem_right.SelectObject(&(bghostThread->ghost_bitmap_right));
-					bghostThread->ResumeThread();
-				}
-				if (gghostThread != NULL) {
-					gghostThread->SuspendThread();
-					gghostThread->dcmem_left.SelectObject(&(gghostThread->ghost_bitmap_left));
-					gghostThread->dcmem_right.SelectObject(&(gghostThread->ghost_bitmap_right));
-					gghostThread->ResumeThread();
-				}
-				if (eghostThread != NULL) {
-					eghostThread->SuspendThread();
-					eghostThread->dcmem_left.SelectObject(&(eghostThread->ghost_bitmap_left));
-					eghostThread->dcmem_right.SelectObject(&(eghostThread->ghost_bitmap_right));
-					eghostThread->ResumeThread();
-				}
-			}
+		viewevent->Lock();
+		pView->pacman_life--;
+		viewevent->Unlock();
+		ResetPacman(dc);
+		return 0;
+	}
+	pacevent.Lock();
+	prev_x = pos_x; prev_y = pos_y;
+	
+	rghostThread->pac_posx = pos_x;
+	rghostThread->pac_posy = pos_y;
+	bghostThread->pac_posx = pos_x;
+	bghostThread->pac_posy = pos_y;
+	gghostThread->pac_posx = pos_x;
+	gghostThread->pac_posy = pos_y;
+	eghostThread->pac_posx = pos_x;
+	eghostThread->pac_posy = pos_y;
+
+	pacevent.Unlock();
+
+	if (powermode) {
+		pacevent.Lock();
+		if (powertime < 1000) {
+			powertime += 1;
+			pacevent.Unlock();
 		}
+		else {
+			powertime = 0;
+			powermode = FALSE;
+
+			
+			rghostThread->dcmem_left.SelectObject(&(rghostThread->ghost_bitmap_left));
+			rghostThread->dcmem_right.SelectObject(&(rghostThread->ghost_bitmap_right));
+			rghostThread->pacman_powermode = FALSE;
+
+			bghostThread->dcmem_left.SelectObject(&(bghostThread->ghost_bitmap_left));
+			bghostThread->dcmem_right.SelectObject(&(bghostThread->ghost_bitmap_right));
+			bghostThread->pacman_powermode = FALSE;
+
+			gghostThread->dcmem_left.SelectObject(&(gghostThread->ghost_bitmap_left));
+			gghostThread->dcmem_right.SelectObject(&(gghostThread->ghost_bitmap_right));
+			gghostThread->pacman_powermode = FALSE;
+
+			eghostThread->dcmem_left.SelectObject(&(eghostThread->ghost_bitmap_left));
+			eghostThread->dcmem_right.SelectObject(&(eghostThread->ghost_bitmap_right));
+			eghostThread->pacman_powermode = FALSE;
+			
+			pacevent.Unlock();
+		}
+	}
 	return 0;
 }
 
 bool PacmanThread::CrashCheck(int pos_x, int pos_y)
 {
 	viewevent->Lock();
+	pacevent.Lock();
 	if (direction == VK_LEFT) {
 		if (GetPixel(*dc, pos_x - 1, pos_y) == RGB(0, 0, 255) || GetPixel(*dc, pos_x - 1, pos_y + 32) == RGB(0, 0, 255) || GetPixel(*dc, pos_x - 1, pos_y + 16) == RGB(0, 0, 255)) {
 			viewevent->Unlock();
+			pacevent.Unlock();
 			return true;
 		}			
 	}
 	else if (direction == VK_RIGHT) {
 		if (GetPixel(*dc, pos_x + 32 + 1, pos_y) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32 + 1, pos_y + 32) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32 + 1, pos_y + 16) == RGB(0, 0, 255)) {
 			viewevent->Unlock();
+			pacevent.Unlock();
 			return true;
 		}
 	}
 	else if (direction == VK_UP) {
 		if (GetPixel(*dc, pos_x, pos_y - 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32, pos_y - 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 16, pos_y - 1) == RGB(0, 0, 255)) {
 			viewevent->Unlock();
+			pacevent.Unlock();
 			return true;
 		}
 	}
 	else if (direction == VK_DOWN) {
 		if (GetPixel(*dc, pos_x, pos_y + 32 + 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 32, pos_y + 32 + 1) == RGB(0, 0, 255) || GetPixel(*dc, pos_x + 16, pos_y + 32 + 1) == RGB(0, 0, 255)) {
 			viewevent->Unlock();
+			pacevent.Unlock();
 			return true;
 		}
 	}
 	viewevent->Unlock();
+	pacevent.Unlock();
 	return false;
 }
 
 
 void PacmanThread::CheckPoint()
 {
+
 	CPoint currentPoint;
 	CRect rect;
 	CString str;
@@ -399,9 +449,7 @@ void PacmanThread::CheckPoint()
 		currentPoint.y = pos_y + 16;
 	}
 	viewevent->Lock();
-	dc->SelectStockObject(WHITE_PEN);
-	dc->SelectStockObject(NULL_BRUSH);
-	
+	pacevent.Lock();
 	for (int i = 0; i < M; i++) {
 		for (int j = 0; j < N; j++) {
 			rect.SetRect((j * SIZE) + 30, (i * SIZE) + 30, (j * SIZE) + SIZE + 30, (i *SIZE) + SIZE + 30);
@@ -412,52 +460,88 @@ void PacmanThread::CheckPoint()
 					pView->MapPoint[i][j] = 0;
 					pView->SetPoint(dc);
 					viewevent->Unlock();
+					pacevent.Unlock();
 					point++;
 					return;
 				}
 				else if (pView->MapPoint[i][j] == 2) {
-					
 					pView->MapPoint[i][j] = 0;
 					pView->SetPoint(dc);
 					if (powermode)
 						powertime = 0;
 					else {
-						if (rghostThread != NULL) {
-							rghostThread->SuspendThread();
-							rghostThread->dcmem_left.SelectObject(&(rghostThread->ghostill_bitmap_left));
-							rghostThread->dcmem_right.SelectObject(&(rghostThread->ghostill_bitmap_right));
-							rghostThread->ResumeThread();
-						}
-						if (bghostThread != NULL) {
-							bghostThread->SuspendThread();
-							bghostThread->dcmem_left.SelectObject(&(bghostThread->ghostill_bitmap_left));
-							bghostThread->dcmem_right.SelectObject(&(bghostThread->ghostill_bitmap_right));
-							bghostThread->ResumeThread();
-						}
-						if (gghostThread != NULL) {
-							gghostThread->SuspendThread();
-							gghostThread->dcmem_left.SelectObject(&(gghostThread->ghostill_bitmap_left));
-							gghostThread->dcmem_right.SelectObject(&(gghostThread->ghostill_bitmap_right));
-							gghostThread->ResumeThread();
-						}
-						if (eghostThread != NULL) {
-							eghostThread->SuspendThread();
-							eghostThread->dcmem_left.SelectObject(&(eghostThread->ghostill_bitmap_left));
-							eghostThread->dcmem_right.SelectObject(&(eghostThread->ghostill_bitmap_right));
-							eghostThread->ResumeThread();
-						}
+
+						rghostThread->dcmem_left.SelectObject(&(rghostThread->ghostill_bitmap_left));
+						rghostThread->dcmem_right.SelectObject(&(rghostThread->ghostill_bitmap_right));
+						rghostThread->pacman_powermode = TRUE;
+
+						bghostThread->dcmem_left.SelectObject(&(bghostThread->ghostill_bitmap_left));
+						bghostThread->dcmem_right.SelectObject(&(bghostThread->ghostill_bitmap_right));
+						bghostThread->pacman_powermode = TRUE;				
+
+						gghostThread->dcmem_left.SelectObject(&(gghostThread->ghostill_bitmap_left));
+						gghostThread->dcmem_right.SelectObject(&(gghostThread->ghostill_bitmap_right));
+						gghostThread->pacman_powermode = TRUE;				
+					
+						eghostThread->dcmem_left.SelectObject(&(eghostThread->ghostill_bitmap_left));
+						eghostThread->dcmem_right.SelectObject(&(eghostThread->ghostill_bitmap_right));
+						eghostThread->pacman_powermode = TRUE;
+					
 						powermode = TRUE;
 					}
 
 					viewevent->Unlock();
+					pacevent.Unlock();
 					return;
 				}
 			}
 		}
 	}
+	pacevent.Unlock();
 	viewevent->Unlock();
 	
 	
 	
 }
 
+
+
+BOOL PacmanThread::ResetPacman(CDC* dc)
+{
+	pacevent.Lock();
+
+	direction = VK_UP;
+
+	up = 0; down = 0; left = 0; right = 0;
+	powermode = FALSE;
+	powertime = 0;
+	pacman_state = 0;
+	viewevent->Lock();
+	
+	pos_x = 30 + SIZE * 3 + 6;
+	pos_y = 30 + SIZE * 3 + 6;
+	prev_x = pos_x; prev_y = pos_y;
+
+	rghostThread->pac_posx = pos_x;
+	rghostThread->pac_posy = pos_y;
+	bghostThread->pac_posx = pos_x;
+	bghostThread->pac_posy = pos_y;
+	gghostThread->pac_posx = pos_x;
+	gghostThread->pac_posy = pos_y;
+	eghostThread->pac_posx = pos_x;
+	eghostThread->pac_posy = pos_y;
+
+	powertime = 0;
+	powermode = FALSE;
+	pacman_died = FALSE;
+
+	TransparentBlt(*dc, 30 + SIZE * 3 + 6, 30 + SIZE * 3 + 6, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, RGB(0, 0, 0));
+	
+	pView->SetMap(dc);
+	pView->SetPoint(dc);
+	pView->SetPacmanLife(dc);
+	
+	viewevent->Unlock();
+	pacevent.Unlock();
+	return 0;
+}

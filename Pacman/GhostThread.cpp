@@ -56,6 +56,8 @@ BOOL GhostThread::InitInstance()
 	uptouch = FALSE;
 	downtouch = FALSE;
 	ghost_state = 0;
+	pacman_powermode = FALSE;
+	pacman_died = FALSE;
 	return TRUE;
 }
 
@@ -74,7 +76,7 @@ END_MESSAGE_MAP()
 
 int GhostThread::Run()
 {
-	//viewevent->Lock();
+	viewevent->Lock();
 	dc = pView->GetDC();
 
 	dcmem_rect.CreateCompatibleDC(dc);
@@ -92,9 +94,10 @@ int GhostThread::Run()
 	dcmem_illghost_left.SelectObject(&ghostill_bitmap_left);
 	dcmem_illghost_right.SelectObject(&ghostill_bitmap_right);
 	*/
+	viewevent->Unlock();
 
 	Initialize(dc);
-	//viewevent->Unlock();
+	
 
 	i = 1;
 	pos_x = 30 + SIZE * 8 + 5;
@@ -104,7 +107,7 @@ int GhostThread::Run()
 
 	while (true) {
 		//viewevent->Lock();
-		ghost_state = MoveGhost(dc);
+		MoveGhost(dc);
 		//viewevent->Unlock();
 		Sleep(10);
 	}
@@ -122,101 +125,128 @@ int GhostThread::MoveGhost(CDC* dc)
 	CString str;
 	CPen pen(PS_SOLID, 2, RGB(0, 0, 255));
 	touch.SetRectEmpty();
-		viewevent->Lock();
-		if (out_of_box == FALSE) {
-			pos_y -= 1;
-			if (pos_y <= 30 + SIZE * 6 + 5) {
-				dc->SelectObject(pen);
-				dc->MoveTo(30 + SIZE * 8, 30 + SIZE * 7);
-				dc->LineTo(30 + SIZE * 9, 30 + SIZE * 7);
-				out_of_box = TRUE;
-			}
-			dc->BitBlt(prev_x + 5, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
-			TransparentBlt(*dc, pos_x, pos_y, ghost_bmpinfo_left.bmWidth, ghost_bmpinfo_left.bmHeight, dcmem_left, 0, 0, ghost_bmpinfo_left.bmWidth, ghost_bmpinfo_left.bmHeight, RGB(0, 0, 0));
+
+	viewevent->Lock();
+	pacevent->Lock();
+	if (out_of_box == FALSE) {
+		pos_y -= 1;
+		if (pos_y <= 30 + SIZE * 6 + 5) {
+			dc->SelectObject(pen);
+			dc->MoveTo(30 + SIZE * 8, 30 + SIZE * 7);
+			dc->LineTo(30 + SIZE * 9, 30 + SIZE * 7);
+			out_of_box = TRUE;
+		}
+		dc->BitBlt(prev_x + 5, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
+		TransparentBlt(*dc, pos_x, pos_y, ghost_bmpinfo_left.bmWidth, ghost_bmpinfo_left.bmHeight, dcmem_left, 0, 0, ghost_bmpinfo_left.bmWidth, ghost_bmpinfo_left.bmHeight, RGB(0, 0, 0));
 			
-			prev_x = pos_x;
-			prev_y = pos_y;
-			viewevent->Unlock();
-			return 0;
-
-		}
-		viewevent->Unlock();
-		
-		CalculateDistance();
-		direction = CrashCheck();
-		/*GhostAI();
-		if (goingleft)
-			pos_x -= 1;
-		else if (goingright)
-			pos_x += 1;
-		else if (goingup)
-			pos_y -= 1;
-		else if (goingdown)
-			pos_y += 1;
-		viewevent->Lock();
-		*/
-		/*for (int i = pos_y + 2; i <= pos_y + 31 - 3; i++) { // left point consumed
-			if (GetPixel(*dc, pos_x + 4, i) == RGB(255, 144, 0)) {
-				point_consumed = 1;
-				dc->BitBlt(pos_x + 4, i+8, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
-				break;
-			}
-		}
-		for (int i = pos_y + 2; i <= pos_y + 31 - 3; i++) { // right point consumed
-			if (GetPixel(*dc, pos_x + 31 - 5, i) == RGB(255, 144, 0)) {
-				point_consumed = 2;
-				dc->BitBlt(pos_x + 31 - 5, i + 8, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
-				break;
-			}
-		}
-		for (int i = pos_y + 2; i <= pos_y + 31 - 3; i++) { // up point consumed
-			if (GetPixel(*dc, pos_x + 4, i) == RGB(255, 144, 0)) {
-				point_consumed = 3;
-				dc->BitBlt(pos_x + 4, i + 8, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
-				break;
-			}
-		}
-		for (int i = pos_y + 2; i <= pos_y + 31 - 3; i++) { // down point consumed
-			if (GetPixel(*dc, pos_x + 4, i) == RGB(255, 144, 0)) {
-				point_consumed = 4;
-				dc->BitBlt(pos_x + 4, i + 8, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
-				break;
-			}
-		}
-		*/
-		viewevent->Unlock();
-
-		viewevent->Lock();
-		if (left <= 15) {
-			left += 1;
-			dc->BitBlt(prev_x + 5, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
-			TransparentBlt(*dc, pos_x, pos_y, ghost_bmpinfo_left.bmWidth, ghost_bmpinfo_left.bmHeight, dcmem_left, 0, 0, ghost_bmpinfo_left.bmWidth, ghost_bmpinfo_left.bmHeight, RGB(0, 0, 0));
-
-		}
-		else {
-			if (left < 30)
-				left += 1;
-			if (left >= 30)
-				left = 0;
-			dc->BitBlt(prev_x + 5, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
-			TransparentBlt(*dc, pos_x, pos_y, ghost_bmpinfo_right.bmWidth, ghost_bmpinfo_right.bmHeight, dcmem_right, 0, 0, ghost_bmpinfo_right.bmWidth, ghost_bmpinfo_right.bmHeight, RGB(0, 0, 0));
-
-		}
-
-		rgn.SetRect(pos_x + 3, pos_y+2, pos_x + 29, pos_y + 29);
-		rect.SetRect(pac_posx+3, pac_posy+3, pac_posx+29, pac_posy+29);
-		if (IntersectRect(touch,rgn, rect)|| pView->pacman_died)
-		{
-			pView->pacman_died = TRUE;
-			pView->drawed = FALSE;
-			if(IntersectRect(touch, rgn, rect))
-				pView->Invalidate();
-			AfxEndThread(0, FALSE);
-			return 1;
-		}
 		prev_x = pos_x;
 		prev_y = pos_y;
+		pacevent->Unlock();
 		viewevent->Unlock();
+		return 0;
+	}
+	viewevent->Unlock();
+	pacevent->Unlock();
+
+	CalculateDistance();
+	direction = CrashCheck();
+	/*GhostAI();
+	if (goingleft)
+		pos_x -= 1;
+	else if (goingright)
+		pos_x += 1;
+	else if (goingup)
+		pos_y -= 1;
+	else if (goingdown)
+		pos_y += 1;
+	viewevent->Lock();
+	*/
+	/*for (int i = pos_y + 2; i <= pos_y + 31 - 3; i++) { // left point consumed
+		if (GetPixel(*dc, pos_x + 4, i) == RGB(255, 144, 0)) {
+			point_consumed = 1;
+			dc->BitBlt(pos_x + 4, i+8, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
+			break;
+		}
+	}
+	for (int i = pos_y + 2; i <= pos_y + 31 - 3; i++) { // right point consumed
+		if (GetPixel(*dc, pos_x + 31 - 5, i) == RGB(255, 144, 0)) {
+			point_consumed = 2;
+			dc->BitBlt(pos_x + 31 - 5, i + 8, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
+			break;
+		}
+	}
+	for (int i = pos_y + 2; i <= pos_y + 31 - 3; i++) { // up point consumed
+		if (GetPixel(*dc, pos_x + 4, i) == RGB(255, 144, 0)) {
+			point_consumed = 3;
+			dc->BitBlt(pos_x + 4, i + 8, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
+			break;
+		}
+	}
+	for (int i = pos_y + 2; i <= pos_y + 31 - 3; i++) { // down point consumed
+		if (GetPixel(*dc, pos_x + 4, i) == RGB(255, 144, 0)) {
+			point_consumed = 4;
+			dc->BitBlt(pos_x + 4, i + 8, small_black_rect_bminfo.bmWidth, small_black_rect_bminfo.bmHeight, &dcmem_smallrect, 0, 0, SRCCOPY);
+			break;
+		}
+	}
+	*/
+
+	viewevent->Lock();
+	pacevent->Lock();
+	if (left <= 15) {
+		left += 1;
+		dc->BitBlt(prev_x + 5, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
+		TransparentBlt(*dc, pos_x, pos_y, ghost_bmpinfo_left.bmWidth, ghost_bmpinfo_left.bmHeight, dcmem_left, 0, 0, ghost_bmpinfo_left.bmWidth, ghost_bmpinfo_left.bmHeight, RGB(0, 0, 0));
+
+	}
+	else {
+		if (left < 30)
+			left += 1;
+		if (left >= 30)
+			left = 0;
+		dc->BitBlt(prev_x + 5, prev_y + 3, black_rect_bminfo.bmWidth, black_rect_bminfo.bmHeight, &dcmem_rect, 0, 0, SRCCOPY);
+		TransparentBlt(*dc, pos_x, pos_y, ghost_bmpinfo_right.bmWidth, ghost_bmpinfo_right.bmHeight, dcmem_right, 0, 0, ghost_bmpinfo_right.bmWidth, ghost_bmpinfo_right.bmHeight, RGB(0, 0, 0));
+
+	}
+	pacevent->Unlock();
+
+	pacevent->Lock();
+	rgn.SetRect(pos_x + 3, pos_y+2, pos_x + 29, pos_y + 29);
+	rect.SetRect(pac_posx+3, pac_posy+3, pac_posx+29, pac_posy+29);
+	pacevent->Unlock();
+
+	CString state;
+	state.Format(_T("%d"), pacman_died);
+	dc->TextOut(800, 400 + (color * 20), state);
+
+	if (IntersectRect(touch,rgn, rect) || pacman_died)
+	{
+		pacevent->Lock();
+		if (IntersectRect(touch, rgn, rect))
+			{
+			if (pacman_powermode) {
+				pacThread->point += 10;
+				pacevent->Unlock();
+				viewevent->Unlock();
+				ResetGhost(dc, 5000, 5000, 5000, 5000);
+				return 0;
+			}
+			else {
+				pacThread->pacman_died = TRUE;
+				pacevent->Unlock();
+			}
+		}
+		else if (pacman_died) {
+			pacevent->Unlock();
+			viewevent->Unlock();
+			ResetGhost(dc, 5000, 10000, 15000, 20000);
+			return 0;
+		}
+	}
+	prev_x = pos_x;
+	prev_y = pos_y;
+	viewevent->Unlock();
+
 	return 0;
 }
 
@@ -228,20 +258,25 @@ void GhostThread::Initialize(CDC* dc)
 	if (color == 0) {
 		ghost_bitmap_left.LoadBitmap(IDB_RED_GHOSTLEFT);
 		ghost_bitmap_right.LoadBitmap(IDB_RED_GHOSTRIGHT);
+		Sleep(5000);
 	}
 	else if (color == 1) {
 		ghost_bitmap_left.LoadBitmap(IDB_BLUE_GHOSTLEFT);
 		ghost_bitmap_right.LoadBitmap(IDB_BLUE_GHOSTRIGHT);
+		Sleep(10000);
 	}
 	else if (color == 2) {
 		ghost_bitmap_left.LoadBitmap(IDB_GREEN_GHOSTLEFT);
 		ghost_bitmap_right.LoadBitmap(IDB_GREEN_GHOSTRIGHT);
+		Sleep(15000);
 	}
 	else if (color == 3) {
 		ghost_bitmap_left.LoadBitmap(IDB_EMERALD_GHOSTLEFT);
 		ghost_bitmap_right.LoadBitmap(IDB_EMERALD_GHOSTRIGHT);
+		Sleep(20000);
 	}
 	viewevent->Lock();
+
 	ghost_bitmap_left.GetBitmap(&ghost_bmpinfo_left);
 	ghost_bitmap_right.GetBitmap(&ghost_bmpinfo_right);
 	dcmem_left.SelectObject(&ghost_bitmap_left);
@@ -266,7 +301,7 @@ void GhostThread::CalculateDistance()
 	right_length = sqrt(pow((pos_x + 1) - pac_posx, 2) + pow(pos_y - pac_posy, 2));
 	up_length = sqrt(pow(pos_x - pac_posx, 2) + pow((pos_y - 1) - pac_posy, 2));
 	down_length = sqrt(pow(pos_x - pac_posx, 2) + pow((pos_y + 1) - pac_posy, 2));
-
+	pacevent->Unlock();
 	arrange[0] = left_length;
 	arrange[1] = right_length;
 	arrange[2] = up_length;
@@ -293,13 +328,13 @@ void GhostThread::CalculateDistance()
 		else if (arrange[i] == down_length)
 			direction_check[i] = VK_DOWN;
 	}
-	pacevent->Unlock();
 	viewevent->Unlock();
 }
 
 
 UINT GhostThread::CrashCheck()
 {
+	viewevent->Lock();
 	for (int i = 4; i <= 5; i++) {
 		if (GetPixel(*dc, pos_x - i, pos_y - 4) == RGB(0, 0, 255) || GetPixel(*dc, pos_x - i, pos_y + 32 + 3) == RGB(0, 0, 255)) {
 			lefttouch = TRUE;
@@ -321,7 +356,7 @@ UINT GhostThread::CrashCheck()
 			downtouch = TRUE;
 		}
 	}
-	viewevent->Lock();
+
 	for (int i = 0; i <= 3; i++) {
 		UINT direction = direction_check[i];
 		if (direction == VK_LEFT) {
@@ -829,3 +864,55 @@ UINT GhostThread::CrashCheck()
 	dc->TextOut(800, 330, str);
 }
 */
+
+bool GhostThread::ResetGhost(CDC* dc, int t1, int t2, int t3, int t4)
+{
+	srand(time(NULL));
+	left = 0;
+	pacevent->Lock();
+	viewevent->Lock();
+	pos_x = 30 + SIZE * 8 + 5;
+	pos_y = 30 + SIZE * 9 + 5;
+	prev_x = pos_x;
+	prev_y = pos_y;
+
+	goingup = FALSE;
+	goingdown = FALSE;
+	int i = rand() % 2;
+	if (i == 0)
+	{
+		goingleft = TRUE;
+		goingright = FALSE;
+	}
+	else
+	{
+		goingleft = FALSE;
+		goingright = TRUE;
+	}
+	out_of_box = FALSE;
+
+	lefttouch = FALSE;
+	righttouch = FALSE;
+	uptouch = FALSE;
+	downtouch = FALSE;
+
+	pacman_powermode = FALSE;
+	pacman_died = FALSE;
+
+	pView->SetMap(dc);
+	pView->SetPoint(dc);
+	//pView->SetPacmanLife(dc);
+	viewevent->Unlock();
+	pacevent->Unlock();
+
+	if (color == 0)
+		Sleep(t1);
+	else if (color == 1)
+		Sleep(t2);
+	else if (color == 2)
+		Sleep(t3);
+	else if (color == 3)
+		Sleep(t4);
+	
+	return 0;
+}

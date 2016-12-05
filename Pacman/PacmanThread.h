@@ -83,6 +83,7 @@ public:
 	BOOL powermode;
 	int powertime;
 	int pacman_state;
+	BOOL pacman_died;
 public:
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
@@ -94,6 +95,7 @@ public:
 	int MovePacman(CDC* dc);
 	bool CrashCheck(int pos_x, int pos_y);
 	void CheckPoint();
+	BOOL ResetPacman(CDC* dc);
 };
 
 

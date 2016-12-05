@@ -76,7 +76,8 @@ public:
 	int point_y;
 	
 	int ghost_state;
-
+	BOOL pacman_powermode;
+	BOOL pacman_died;
 public:
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
@@ -90,6 +91,7 @@ public:
 	void CalculateDistance();
 	UINT CrashCheck();
 	void GhostAI();
+	bool ResetGhost(CDC* dc, int t1, int t2, int t3, int t4);
 };
 
 

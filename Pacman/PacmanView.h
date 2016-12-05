@@ -134,7 +134,7 @@ public:
 //	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 //	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	bool SetPacmanLife(CDC* dc);
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
+//	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
 
 #ifndef _DEBUG  // PacmanView.cpp의 디버그 버전

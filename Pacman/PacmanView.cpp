@@ -34,7 +34,7 @@ ON_WM_ERASEBKGND()
 //ON_WM_LBUTTONDOWN()
 //ON_WM_MOUSEMOVE()
 //ON_WM_TIMER()
-ON_WM_TIMER()
+//ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 // CPacmanView 생성/소멸
@@ -123,14 +123,6 @@ CPacmanView::CPacmanView()
 	gghostThread = NULL;
 	eghostThread = NULL;
 	
-	pacExitCode = NULL;
-	rgExitCode = NULL;
-	bgExitCode = NULL;
-	ggExitCode = NULL;
-	egExitCode = NULL;
-
-	timer_counter = 0;
-	ghostcreate_sequence = 0;
 }
 
 CPacmanView::~CPacmanView()
@@ -153,53 +145,6 @@ void CPacmanView::OnDraw(CDC* pDC)
 	viewevent.Unlock();
 
 	if (!drawed) {
-		if (pacman_died) {
-			CString str;
-			str.Format(_T("%d"), pacman_died);
-			pDC->TextOut(800, 600, str);
-			while (TRUE) {
-				if (pacThread != NULL)
-					::GetExitCodeThread(pacThread->m_hThread, &pacExitCode);
-				if (rghostThread != NULL)
-					::GetExitCodeThread(rghostThread->m_hThread, &rgExitCode);
-				if (bghostThread != NULL)
-					::GetExitCodeThread(bghostThread->m_hThread, &bgExitCode);
-				if (gghostThread != NULL)
-					::GetExitCodeThread(gghostThread->m_hThread, &ggExitCode);
-				if (eghostThread != NULL)
-					::GetExitCodeThread(eghostThread->m_hThread, &egExitCode);
-
-				if ((pacExitCode != STILL_ACTIVE || pacThread == NULL) && (rgExitCode != STILL_ACTIVE || pacThread == NULL) && (bgExitCode != STILL_ACTIVE || bghostThread == NULL) &&
-					(ggExitCode != STILL_ACTIVE || gghostThread == NULL) && (egExitCode != STILL_ACTIVE || eghostThread == NULL)) {
-					if (pacThread != NULL)
-						delete pacThread;
-					if (rghostThread != NULL)
-						delete rghostThread;
-					if (bghostThread != NULL)
-						delete bghostThread;
-					if (gghostThread != NULL)
-						delete gghostThread;
-					if (eghostThread != NULL)
-						delete eghostThread;
-					break;
-				}
-			}
-			pacThread = NULL;
-			rghostThread = NULL;
-			bghostThread = NULL;
-			gghostThread = NULL;
-			eghostThread = NULL;
-
-			pacExitCode = NULL;
-			rgExitCode = NULL;
-			bgExitCode = NULL;
-			ggExitCode = NULL;
-			egExitCode = NULL;
-		}
-		pacman_life--;
-		pacman_died = FALSE;
-
-		SetTimer(1000, 50, NULL);
 		GetWindowRect(&rect);
 		ScreenToClient(rect);
 
@@ -214,12 +159,51 @@ void CPacmanView::OnDraw(CDC* pDC)
 		SetPacmanLife(pDC);
 
 		pacThread = (PacmanThread*)(AfxBeginThread(RUNTIME_CLASS(PacmanThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
-		pacThread->m_bAutoDelete = FALSE;
 		pacThread->viewevent = &viewevent;
 		pacThread->pView = this;
 		pacThread->totalpoint = totalpoint;
 		pacThread->ResumeThread();
-		
+		Sleep(10);
+
+		rghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
+		rghostThread->color = 0;
+		pacThread->rghostThread = rghostThread;
+		rghostThread->pacThread = pacThread;
+		rghostThread->viewevent = &viewevent;
+		rghostThread->pView = this;
+		rghostThread->pacevent = pacevent;
+
+
+		bghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
+		bghostThread->color = 1;
+		pacThread->bghostThread = bghostThread;
+		bghostThread->pacThread = pacThread;
+		bghostThread->viewevent = &viewevent;
+		bghostThread->pView = this;
+		bghostThread->pacevent = pacevent;
+
+
+		gghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
+		gghostThread->color = 2;
+		pacThread->gghostThread = gghostThread;
+		gghostThread->pacThread = pacThread;
+		gghostThread->viewevent = &viewevent;
+		gghostThread->pView = this;
+		gghostThread->pacevent = pacevent;
+
+		eghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
+		eghostThread->color = 3;
+		pacThread->eghostThread = eghostThread;
+		eghostThread->pacThread = pacThread;
+		eghostThread->viewevent = &viewevent;
+		eghostThread->pView = this;
+		eghostThread->pacevent = pacevent;
+
+		pacThread->ResumeThread();
+		rghostThread->ResumeThread();
+		bghostThread->ResumeThread();
+		gghostThread->ResumeThread();
+		eghostThread->ResumeThread();
 		drawed = TRUE;
 		
 	}
@@ -405,7 +389,6 @@ BOOL CPacmanView::OnEraseBkgnd(CDC* pDC)
 
 BOOL CPacmanView::SetPoint(CDC* dc)
 {
-	//viewevent.Lock();
 	CBrush pointbrush(RGB(255, 144, 0));
 	dc->SelectObject(pointbrush);
 	dc->SelectStockObject(NULL_PEN);
@@ -424,7 +407,6 @@ BOOL CPacmanView::SetPoint(CDC* dc)
 			}
 		}
 	}
-	//viewevent.Unlock();
 	return 0;
 }
 
@@ -454,97 +436,100 @@ BOOL CPacmanView::SetPoint(CDC* dc)
 
 bool CPacmanView::SetPacmanLife(CDC* dc)
 {
+	viewevent.Lock();
 	if (pacman_life > 0) {
 		for (int i = 0; i < pacman_life; i++) {
 			dc->BitBlt(800 + (i * 30), 150, life_bmpinfo.bmWidth, life_bmpinfo.bmHeight, &dcmem_life, 0, 0, SRCCOPY);
 		}
+		viewevent.Unlock();
 		return TRUE;
 	}
 	else
+		viewevent.Unlock();
 		return FALSE;
 }
 
 
-void CPacmanView::OnTimer(UINT_PTR nIDEvent)
-{
-	viewevent.Lock();
-	timer_counter++;
-
-	switch (nIDEvent)
-	{
-	case 1000:
-		if (pacman_died) // 유령 나오는 중간에 죽었을 때 더 이상 유령들을 만들지 않음.
-		{
-			ghostcreate_sequence = 0;
-			KillTimer(1000);
-		}
-		else {
-			if (ghostcreate_sequence == 0 && timer_counter >= 100) {
-				rghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
-				pacThread->SuspendThread();
-				rghostThread->m_bAutoDelete = FALSE;
-				rghostThread->color = 0;
-				pacThread->rghostThread = rghostThread;
-				rghostThread->pacThread = pacThread;
-				rghostThread->viewevent = &viewevent;
-				rghostThread->pView = this;
-				rghostThread->pacevent = pacevent;
-				ghostcreate_sequence++;
-				timer_counter = 0;
-				pacThread->ResumeThread();
-				rghostThread->ResumeThread();
-				
-			}
-			else if (ghostcreate_sequence == 1 && timer_counter >= 100) {
-				bghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
-				pacThread->SuspendThread();
-				bghostThread->m_bAutoDelete = FALSE;
-				bghostThread->color = 1;
-				pacThread->bghostThread = bghostThread;
-				bghostThread->pacThread = pacThread;
-				bghostThread->viewevent = &viewevent;
-				bghostThread->pView = this;
-				bghostThread->pacevent = pacevent;
-				ghostcreate_sequence++;
-				timer_counter = 0;
-				pacThread->ResumeThread();
-				bghostThread->ResumeThread();
-				
-			}
-
-			else if (ghostcreate_sequence == 2 && timer_counter >=100) {
-				gghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
-				pacThread->SuspendThread();
-				gghostThread->m_bAutoDelete = FALSE;
-				gghostThread->color = 2;
-				pacThread->gghostThread = gghostThread;
-				gghostThread->pacThread = pacThread;
-				gghostThread->viewevent = &viewevent;
-				gghostThread->pView = this;
-				gghostThread->pacevent = pacevent;
-				ghostcreate_sequence++;
-				timer_counter = 0;
-				pacThread->ResumeThread();
-				gghostThread->ResumeThread();
-				
-			}
-			else if (ghostcreate_sequence == 3 && timer_counter >= 100) {
-				eghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
-				pacThread->SuspendThread();
-				eghostThread->m_bAutoDelete = FALSE;
-				eghostThread->color = 3;
-				pacThread->eghostThread = eghostThread;
-				eghostThread->pacThread = pacThread;
-				eghostThread->viewevent = &viewevent;
-				eghostThread->pView = this;
-				eghostThread->pacevent = pacevent;
-				ghostcreate_sequence = 0;
-				timer_counter = 0;
-				pacThread->ResumeThread();
-				eghostThread->ResumeThread();
-			}
-			else;
-			}
-		}
-	viewevent.Unlock();
-}
+//void CPacmanView::OnTimer(UINT_PTR nIDEvent)
+//{
+//	viewevent.Lock();
+//	timer_counter++;
+//
+//	switch (nIDEvent)
+//	{
+//	case 1000:
+//		if (pacman_died) // 유령 나오는 중간에 죽었을 때 더 이상 유령들을 만들지 않음.
+//		{
+//			ghostcreate_sequence = 0;
+//			KillTimer(1000);
+//		}
+//		else {
+//			if (ghostcreate_sequence == 0 && timer_counter >= 100) {
+//				rghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
+//				pacThread->SuspendThread();
+//				rghostThread->m_bAutoDelete = FALSE;
+//				rghostThread->color = 0;
+//				pacThread->rghostThread = rghostThread;
+//				rghostThread->pacThread = pacThread;
+//				rghostThread->viewevent = &viewevent;
+//				rghostThread->pView = this;
+//				rghostThread->pacevent = pacevent;
+//				ghostcreate_sequence++;
+//				timer_counter = 0;
+//				pacThread->ResumeThread();
+//				rghostThread->ResumeThread();
+//				
+//			}
+//			else if (ghostcreate_sequence == 1 && timer_counter >= 100) {
+//				bghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
+//				pacThread->SuspendThread();
+//				bghostThread->m_bAutoDelete = FALSE;
+//				bghostThread->color = 1;
+//				pacThread->bghostThread = bghostThread;
+//				bghostThread->pacThread = pacThread;
+//				bghostThread->viewevent = &viewevent;
+//				bghostThread->pView = this;
+//				bghostThread->pacevent = pacevent;
+//				ghostcreate_sequence++;
+//				timer_counter = 0;
+//				pacThread->ResumeThread();
+//				bghostThread->ResumeThread();
+//				
+//			}
+//
+//			else if (ghostcreate_sequence == 2 && timer_counter >=100) {
+//				gghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
+//				pacThread->SuspendThread();
+//				gghostThread->m_bAutoDelete = FALSE;
+//				gghostThread->color = 2;
+//				pacThread->gghostThread = gghostThread;
+//				gghostThread->pacThread = pacThread;
+//				gghostThread->viewevent = &viewevent;
+//				gghostThread->pView = this;
+//				gghostThread->pacevent = pacevent;
+//				ghostcreate_sequence++;
+//				timer_counter = 0;
+//				pacThread->ResumeThread();
+//				gghostThread->ResumeThread();
+//				
+//			}
+//			else if (ghostcreate_sequence == 3 && timer_counter >= 100) {
+//				eghostThread = (GhostThread*)(AfxBeginThread(RUNTIME_CLASS(GhostThread), THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED, NULL));
+//				pacThread->SuspendThread();
+//				eghostThread->m_bAutoDelete = FALSE;
+//				eghostThread->color = 3;
+//				pacThread->eghostThread = eghostThread;
+//				eghostThread->pacThread = pacThread;
+//				eghostThread->viewevent = &viewevent;
+//				eghostThread->pView = this;
+//				eghostThread->pacevent = pacevent;
+//				ghostcreate_sequence = 0;
+//				timer_counter = 0;
+//				pacThread->ResumeThread();
+//				eghostThread->ResumeThread();
+//			}
+//			else;
+//			}
+//		}
+//	viewevent.Unlock();
+//}
