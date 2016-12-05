@@ -537,9 +537,9 @@ BOOL PacmanThread::ResetPacman(CDC* dc)
 
 	TransparentBlt(*dc, 30 + SIZE * 3 + 6, 30 + SIZE * 3 + 6, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, dcmem_up1, 0, 0, pacman_bmpinfo_up1.bmWidth, pacman_bmpinfo_up1.bmHeight, RGB(0, 0, 0));
 	
-	pView->SetMap(dc);
-	pView->SetPoint(dc);
-	pView->SetPacmanLife(dc);
+	//pView->SetMap(dc);
+	//pView->SetPoint(dc);
+	//pView->SetPacmanLife(dc);
 	
 	viewevent->Unlock();
 	pacevent.Unlock();

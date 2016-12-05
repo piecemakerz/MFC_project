@@ -901,7 +901,7 @@ bool GhostThread::ResetGhost(CDC* dc, int t1, int t2, int t3, int t4)
 
 	pView->SetMap(dc);
 	pView->SetPoint(dc);
-	//pView->SetPacmanLife(dc);
+	pView->SetPacmanLife(dc);
 	viewevent->Unlock();
 	pacevent->Unlock();
 
